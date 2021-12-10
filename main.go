@@ -175,7 +175,7 @@ func NewFullNode() *FullNodeMetrics {
 				Namespace: namespace,
 				Name:      "actor_balance",
 				Help:      "return actor balance(fil).",
-			}, []string{"api", "miner_id", "address", "tag", "account_id","miner_tag"}),
+			}, []string{"api", "miner_id", "address", "tag", "account_id", "miner_tag"}),
 	}
 }
 
@@ -247,9 +247,13 @@ func (f *FullNodeMetrics) Collect(ch chan<- prometheus.Metric) {
 
 	// #########构建变量完成。
 	var wg = sync.WaitGroup{}
+	// 每个矿工的算力、各种余额等信息。
 	chb := make(chan metrics.ActorInfo, 4)
+	// 矿工的deadline信息。
 	chd := make(chan metrics.ActorDeadlines, 4)
+	// lotus daemon节点的版本、同步状态等。
 	chi := make(chan metrics.FullNodeInfo)
+	// 外部钱包的余额。
 	chw := make(chan metrics.BalanceMetrics, 4)
 
 	wg.Add(1)
@@ -257,7 +261,7 @@ func (f *FullNodeMetrics) Collect(ch chan<- prometheus.Metric) {
 		defer wg.Done()
 		counter := 0
 		for bb := range chb {
-			counter ++
+			counter++
 			// {"api","collector"}
 			f.ScrapeDuration.WithLabelValues(fullNodeAddress, "info_"+bb.ActorStr).Set(bb.DurationSeconds)
 			// {"api", "miner_id", "tag"}
@@ -268,10 +272,10 @@ func (f *FullNodeMetrics) Collect(ch chan<- prometheus.Metric) {
 			f.MinerRawBytePower.WithLabelValues(fullNodeAddress, bb.ActorStr, bb.ActorTag).Set(bb.RawBytePower)
 			for _, bls := range bb.Bls {
 				// {"api", "miner_id", "address", "tag", "account_id"}
-				f.ActorBalance.WithLabelValues(fullNodeAddress, bb.ActorStr, bls.Address, bls.Tag, bls.AccountId,bb.ActorTag).Set(bls.Balance)
+				f.ActorBalance.WithLabelValues(fullNodeAddress, bb.ActorStr, bls.Address, bls.Tag, bls.AccountId, bb.ActorTag).Set(bls.Balance)
 			}
 		}
-		logger.Debugw("receive","actor info",counter)
+		logger.Debugw("receive", "actor info", counter)
 	}()
 
 	wg.Add(1)
@@ -279,7 +283,7 @@ func (f *FullNodeMetrics) Collect(ch chan<- prometheus.Metric) {
 		defer wg.Done()
 		counter := 0
 		for dd := range chd {
-			counter ++
+			counter++
 			// {"api","collector"}
 			f.ScrapeDuration.WithLabelValues(fullNodeAddress, "deadline_"+dd.ActorStr).Set(dd.DurationSeconds)
 			// {"api", "miner_id", "tag","period_start", "index","open_epoch"}
@@ -295,7 +299,7 @@ func (f *FullNodeMetrics) Collect(ch chan<- prometheus.Metric) {
 				f.MinerDeadlinePartitionsProven.WithLabelValues(fullNodeAddress, dd.ActorStr, dd.ActorTag, dl.Index).Set(dl.Proven)
 			}
 		}
-		logger.Debugw("receive","deadline",counter)
+		logger.Debugw("receive", "deadline", counter)
 	}()
 
 	wg.Add(1)
@@ -303,7 +307,7 @@ func (f *FullNodeMetrics) Collect(ch chan<- prometheus.Metric) {
 		defer wg.Done()
 		counter := 0
 		for ii := range chi {
-			counter ++
+			counter++
 			f.ScrapeDuration.WithLabelValues(fullNodeAddress, "fullnode_info").Set(ii.DurationSeconds)
 			f.FullNodeInfo.WithLabelValues(fullNodeAddress, ii.Version).Set(ii.NetworkVersion)
 			for _, sy := range ii.SyncState {
@@ -311,7 +315,7 @@ func (f *FullNodeMetrics) Collect(ch chan<- prometheus.Metric) {
 				f.FullNodeSync.WithLabelValues(fullNodeAddress, sy.WorkerID, sy.Status).Set(sy.HeightDiff)
 			}
 		}
-		logger.Debugw("receive","fullnode_info",counter)
+		logger.Debugw("receive", "fullnode_info", counter)
 	}()
 
 	wg.Add(1)
@@ -319,11 +323,10 @@ func (f *FullNodeMetrics) Collect(ch chan<- prometheus.Metric) {
 		defer wg.Done()
 		for w := range chw {
 			// {"api", "miner_id", "address", "tag", "account_id"}
-			f.ActorBalance.WithLabelValues(fullNodeAddress, "external", w.Address, w.Tag, w.AccountId,"unknown").Set(w.Balance)
+			f.ActorBalance.WithLabelValues(fullNodeAddress, "external", w.Address, w.Tag, w.AccountId, "unknown").Set(w.Balance)
 		}
 	}()
 	a := metrics.NewFullNodeApi(&APIFullNode, FullNodeCtx, ChainHead.Key())
-
 	go a.GetActorsDeadlinesMetrics(actorAddresses, BaseEpoch, BaseTimestamp, chd)
 	go a.GetActorsInfoMetrics(actorAddresses, chb)
 	go a.GetExternalWallet(walletAddresses, chw)

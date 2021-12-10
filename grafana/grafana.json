@@ -22,7 +22,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 2,
-  "iteration": 1639016366378,
+  "iteration": 1639105446216,
   "links": [],
   "panels": [
     {
@@ -51,12 +51,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "dark-blue",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
           }
@@ -71,6 +67,13 @@
               {
                 "id": "unit",
                 "value": "dateTimeAsIsoNoDateIfToday"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "rgba(179, 202, 136, 1)",
+                  "mode": "fixed"
+                }
               }
             ]
           },
@@ -83,6 +86,51 @@
               {
                 "id": "unit",
                 "value": "s"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "rgba(163, 192, 202, 1)",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "基础费率"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "attoFil"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 10000000
+                    },
+                    {
+                      "color": "orange",
+                      "value": 100000100
+                    }
+                  ]
+                }
               }
             ]
           }
@@ -90,13 +138,13 @@
       },
       "gridPos": {
         "h": 2,
-        "w": 4,
+        "w": 6,
         "x": 0,
         "y": 1
       },
-      "id": 4,
+      "id": 65,
       "options": {
-        "colorMode": "none",
+        "colorMode": "background",
         "graphMode": "area",
         "justifyMode": "auto",
         "orientation": "auto",
@@ -105,30 +153,31 @@
             "lastNotNull"
           ],
           "fields": "",
+          "limit": 2,
           "values": true
         },
         "text": {},
         "textMode": "value"
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "",
       "targets": [
         {
           "exemplar": true,
-          "expr": "lotus_current_time{job=\"$job\",api=\"$api\"} * 1000",
+          "expr": "lotus_current_time{job=\"$job\",instance=\"$instance\"} * 1000",
           "format": "table",
           "instant": true,
           "interval": "",
-          "legendFormat": "",
+          "legendFormat": "当前时间",
           "refId": "A"
         },
         {
           "exemplar": true,
-          "expr": "lotus_scrape_duration{job=\"$job\",api=\"$api\",collector=\"all\"}",
+          "expr": "lotus_scrape_duration{job=\"$job\",instance=\"$instance\",collector=\"all\"}",
           "format": "table",
           "hide": false,
           "instant": true,
           "interval": "",
-          "legendFormat": "",
+          "legendFormat": "延迟",
           "refId": "B"
         }
       ],
@@ -145,24 +194,193 @@
             "excludeByName": {
               "Time 1": true,
               "Time 2": true,
+              "Time 3": true,
+              "Time 4": true,
               "__name__": true,
               "__name__ 1": true,
               "__name__ 2": true,
+              "__name__ 3": true,
               "api 1": true,
               "api 2": true,
+              "api 3": true,
+              "api 4": true,
               "collector": true,
               "env 1": true,
               "env 2": true,
+              "env 3": true,
+              "env 4": true,
               "instance": true,
               "job 1": true,
-              "job 2": true
+              "job 2": true,
+              "job 3": true,
+              "job 4": true
             },
             "indexByName": {},
             "renameByName": {
               "Value #A": "当前时间",
-              "Value #B": "延迟"
+              "Value #B": "延迟",
+              "Value #C": "高度",
+              "Value #D": "基础费率",
+              "env 3": "",
+              "job 4": ""
             }
           }
+        }
+      ],
+      "type": "stat"
+    },
+    {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "rgba(219, 174, 147, 1)",
+                "value": null
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "当前高度"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "none"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "rgba(193, 174, 233, 1)",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "max",
+                "value": 1
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 2,
+        "w": 6,
+        "x": 6,
+        "y": 1
+      },
+      "id": 68,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "last"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "",
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "lotus_current_epoch{job=\"$job\",instance=\"$instance\"}",
+          "hide": false,
+          "instant": true,
+          "interval": "",
+          "legendFormat": "当前高度",
+          "refId": "B"
+        },
+        {
+          "exemplar": true,
+          "expr": "sum(lotus_sync{job=\"$job\",instance=\"$instance\"}) by (api,env,instance,job)",
+          "instant": true,
+          "interval": "",
+          "legendFormat": "高度差",
+          "refId": "A"
+        }
+      ],
+      "type": "stat"
+    },
+    {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "value": 10000000
+              },
+              {
+                "color": "orange",
+                "value": 100000000
+              }
+            ]
+          },
+          "unit": "attoFIL"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 2,
+        "w": 12,
+        "x": 12,
+        "y": 1
+      },
+      "id": 85,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "",
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "lotus_base_fee{job=\"$job\",instance=\"$instance\"}",
+          "interval": "",
+          "legendFormat": "基础费率",
+          "refId": "A"
         }
       ],
       "type": "stat"
@@ -175,7 +393,7 @@
           "color": {
             "mode": "palette-classic"
           },
-          "decimals": 0,
+          "decimals": 1,
           "mappings": [],
           "max": 1200,
           "thresholds": {
@@ -198,8 +416,8 @@
       "gridPos": {
         "h": 3,
         "w": 6,
-        "x": 4,
-        "y": 1
+        "x": 0,
+        "y": 3
       },
       "id": 11,
       "options": {
@@ -207,7 +425,7 @@
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
-            "lastNotNull"
+            "last"
           ],
           "fields": "",
           "values": false
@@ -215,21 +433,22 @@
         "showUnfilled": true,
         "text": {}
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "",
       "targets": [
         {
           "exemplar": true,
-          "expr": "sum ({__name__=\"lotus_actor_balance\",tag!~\"control.*\",miner_id!~\"external.*\",job=\"$job\",api=\"$api\"}) by (api,env,instance,__name__,job)",
+          "expr": "sum ({__name__=\"lotus_actor_balance\",tag!~\"control.*|balance|pledge|pre_commit|vesting\",miner_id!~\"external.*\",job=\"$job\",instance=\"$instance\"}) by (api,env,instance,__name__,job)",
           "format": "time_series",
-          "instant": false,
+          "instant": true,
           "interval": "",
           "legendFormat": "可用余额",
           "refId": "A"
         },
         {
           "exemplar": true,
-          "expr": "sum ({__name__=\"lotus_actor_balance\",tag=~\"control.*\",miner_id!~\"external.*\",job=\"$job\",api=\"$api\"}) by (api,env,instance,__name__,job)",
+          "expr": "sum ({__name__=\"lotus_actor_balance\",tag=~\"control.*\",miner_id!~\"external.*\",job=\"$job\",instance=\"$instance\"}) by (api,env,instance,__name__,job)",
           "hide": false,
+          "instant": true,
           "interval": "",
           "legendFormat": "保留余额",
           "refId": "B"
@@ -247,9 +466,10 @@
           "color": {
             "mode": "continuous-BlPu"
           },
-          "decimals": 0,
+          "decimals": 1,
           "mappings": [],
           "max": 1200,
+          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -269,11 +489,76 @@
       },
       "gridPos": {
         "h": 3,
-        "w": 5,
-        "x": 10,
-        "y": 1
+        "w": 6,
+        "x": 6,
+        "y": 3
       },
       "id": 12,
+      "options": {
+        "displayMode": "gradient",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "last"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": true,
+        "text": {}
+      },
+      "pluginVersion": "",
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "{__name__=\"lotus_actor_balance\",miner_id=~\".*external.*\",job=\"$job\",instance=\"$instance\"}",
+          "format": "time_series",
+          "instant": true,
+          "interval": "",
+          "legendFormat": "{{tag}}",
+          "refId": "A"
+        }
+      ],
+      "title": "独立钱包",
+      "transformations": [],
+      "type": "bargauge"
+    },
+    {
+      "datasource": null,
+      "description": "不包含control账户",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "continuous-BlPu"
+          },
+          "decimals": 1,
+          "mappings": [],
+          "max": 800,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "Fil"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 12,
+        "y": 3
+      },
+      "id": 10,
       "options": {
         "displayMode": "gradient",
         "orientation": "horizontal",
@@ -287,19 +572,19 @@
         "showUnfilled": true,
         "text": {}
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "",
       "targets": [
         {
           "exemplar": true,
-          "expr": "{__name__=\"lotus_actor_balance\",miner_id=~\"external.*\",job=\"$job\",api=\"$api\"}",
+          "expr": "sum ({__name__=\"lotus_actor_balance\",tag!~\"control.*|balance|pledge|pre_commit|vesting\",miner_id!~\"external.*\",job=\"$job\",instance=\"$instance\"}) by (miner_id,api,env,instance,__name__,job,miner_tag)",
           "format": "time_series",
           "instant": false,
           "interval": "",
-          "legendFormat": "{{tag}}",
+          "legendFormat": "{{miner_id}} {{miner_tag}}",
           "refId": "A"
         }
       ],
-      "title": "独立钱包",
+      "title": "节点余额",
       "transformations": [],
       "type": "bargauge"
     },
@@ -350,7 +635,7 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 88
+                "value": 87
               },
               {
                 "id": "custom.align",
@@ -427,21 +712,45 @@
                 "value": 90
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "别名"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 55
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "窗口"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 59
+              }
+            ]
           }
         ]
       },
       "gridPos": {
         "h": 11,
-        "w": 9,
-        "x": 15,
-        "y": 1
+        "w": 6,
+        "x": 18,
+        "y": 3
       },
       "id": 6,
       "options": {
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "",
       "targets": [
         {
           "exemplar": true,
@@ -454,7 +763,7 @@
         },
         {
           "exemplar": true,
-          "expr": "{__name__=\"lotus_miner_deadline_open_time\",job=\"$job\",api=\"$api\"}* 1000 and ignoring(open_epoch,period_start) {__name__=\"lotus_miner_deadline_info\",job=\"$job\",api=\"$api\"} ",
+          "expr": "{__name__=\"lotus_miner_deadline_open_time\",job=\"$job\",instance=\"$instance\"}* 1000 and ignoring(open_epoch,period_start) {__name__=\"lotus_miner_deadline_info\",job=\"$job\",instance=\"$instance\"} ",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -464,7 +773,7 @@
         },
         {
           "exemplar": true,
-          "expr": "{__name__=\"lotus_miner_deadline_sector_all\",job=\"$job\",api=\"$api\"} and ignoring(open_epoch,period_start) {__name__=\"lotus_miner_deadline_info\",job=\"$job\",api=\"$api\"}",
+          "expr": "{__name__=\"lotus_miner_deadline_sector_all\",job=\"$job\",instance=\"$instance\"} and ignoring(open_epoch,period_start) {__name__=\"lotus_miner_deadline_info\",job=\"$job\",instance=\"$instance\"}",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -474,7 +783,7 @@
         },
         {
           "exemplar": true,
-          "expr": "{__name__=\"lotus_miner_deadline_sector_faulty\",job=\"$job\",api=\"$api\"} and ignoring(open_epoch,period_start) {__name__=\"lotus_miner_deadline_info\",job=\"$job\",api=\"$api\"}",
+          "expr": "{__name__=\"lotus_miner_deadline_sector_faulty\",job=\"$job\",instance=\"$instance\"} and ignoring(open_epoch,period_start) {__name__=\"lotus_miner_deadline_info\",job=\"$job\",instance=\"$instance\"}",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -484,7 +793,7 @@
         },
         {
           "exemplar": true,
-          "expr": "{__name__=\"lotus_miner_deadline_partitions\",job=\"$job\",api=\"$api\"} and ignoring(open_epoch,period_start) {__name__=\"lotus_miner_deadline_info\",job=\"$job\",api=\"$api\"}",
+          "expr": "{__name__=\"lotus_miner_deadline_partitions\",job=\"$job\",instance=\"$instance\"} and ignoring(open_epoch,period_start) {__name__=\"lotus_miner_deadline_info\",job=\"$job\",instance=\"$instance\"}",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -510,6 +819,7 @@
               "Time 3": true,
               "Time 4": true,
               "Time 5": true,
+              "Value #D": true,
               "__name__ 1": true,
               "__name__ 2": true,
               "__name__ 3": true,
@@ -632,148 +942,24 @@
     },
     {
       "datasource": null,
+      "description": "",
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "thresholds"
           },
-          "custom": {
-            "align": "center",
-            "displayMode": "auto",
-            "filterable": false,
-            "width": 60
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "状态"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 79
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "ID"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 38
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "高度差"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 59
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 5,
-        "w": 4,
-        "x": 0,
-        "y": 3
-      },
-      "id": 8,
-      "options": {
-        "showHeader": true,
-        "sortBy": []
-      },
-      "pluginVersion": "8.0.6",
-      "targets": [
-        {
-          "exemplar": true,
-          "expr": "lotus_sync{job=\"$job\",api=\"$api\"}",
-          "format": "table",
-          "instant": true,
-          "interval": "",
-          "legendFormat": "",
-          "refId": "A"
-        }
-      ],
-      "title": "同步状态",
-      "transformations": [
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {
-              "Time": true,
-              "__name__": true,
-              "api": true,
-              "env": true,
-              "instance": true,
-              "job": true
-            },
-            "indexByName": {
-              "Time": 0,
-              "Value": 8,
-              "__name__": 1,
-              "api": 2,
-              "env": 3,
-              "instance": 4,
-              "job": 5,
-              "status": 7,
-              "worker_id": 6
-            },
-            "renameByName": {
-              "Value": "高度差",
-              "status": "状态",
-              "worker_id": "ID"
-            }
-          }
-        }
-      ],
-      "type": "table"
-    },
-    {
-      "datasource": null,
-      "description": "不包含control账户",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "continuous-BlPu"
-          },
           "decimals": 0,
           "mappings": [],
-          "max": 800,
+          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "super-light-red",
                 "value": null
               },
               {
-                "color": "red",
+                "color": "orange",
                 "value": 80
               }
             ]
@@ -785,10 +971,10 @@
       "gridPos": {
         "h": 8,
         "w": 6,
-        "x": 4,
-        "y": 4
+        "x": 0,
+        "y": 6
       },
-      "id": 10,
+      "id": 47,
       "options": {
         "displayMode": "gradient",
         "orientation": "horizontal",
@@ -802,11 +988,11 @@
         "showUnfilled": true,
         "text": {}
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "",
       "targets": [
         {
           "exemplar": true,
-          "expr": "sum ({__name__=\"lotus_actor_balance\",tag!~\"control.*\",miner_id!~\"external.*\",job=\"$job\",api=\"$api\"}) by (miner_id,api,env,instance,__name__,job,miner_tag)",
+          "expr": "sum ({__name__=\"lotus_actor_balance\",tag=\"pledge\",miner_id!~\"external.*\",job=\"$job\",instance=\"$instance\"}) by (miner_id,api,env,instance,__name__,job,miner_tag)",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -814,7 +1000,7 @@
           "refId": "A"
         }
       ],
-      "title": "各节点余额",
+      "title": "节点质押",
       "transformations": [],
       "type": "bargauge"
     },
@@ -825,7 +1011,7 @@
         "defaults": {
           "color": {
             "fixedColor": "text",
-            "mode": "continuous-BlPu"
+            "mode": "thresholds"
           },
           "decimals": 2,
           "mappings": [],
@@ -833,11 +1019,11 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "light-green",
                 "value": null
               },
               {
-                "color": "red",
+                "color": "semi-dark-green",
                 "value": 80
               }
             ]
@@ -848,9 +1034,9 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 5,
-        "x": 10,
-        "y": 4
+        "w": 6,
+        "x": 6,
+        "y": 6
       },
       "id": 13,
       "options": {
@@ -866,11 +1052,11 @@
         "showUnfilled": true,
         "text": {}
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "",
       "targets": [
         {
           "exemplar": true,
-          "expr": "sum ({__name__=\"lotus_miner_quality_adj_power\",job=\"$job\",api=\"$api\"}) by (miner_id,api,env,instance,__name__,job,miner_tag)",
+          "expr": "sum ({__name__=\"lotus_miner_quality_adj_power\",job=\"$job\",instance=\"$instance\"}) by (miner_id,api,env,instance,__name__,job,miner_tag)",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -878,7 +1064,7 @@
           "refId": "A"
         }
       ],
-      "title": "各节点算力",
+      "title": "节点算力",
       "transformations": [],
       "type": "bargauge"
     },
@@ -990,21 +1176,21 @@
         ]
       },
       "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 0,
-        "y": 8
+        "h": 3,
+        "w": 6,
+        "x": 12,
+        "y": 11
       },
       "id": 14,
       "options": {
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "",
       "targets": [
         {
           "exemplar": true,
-          "expr": "lotus_miner_deadline_sector_faulty{job=\"$job\",api=\"$api\"} > 0",
+          "expr": "lotus_miner_deadline_sector_faulty{job=\"$job\",instance=\"$instance\"} > 0",
           "format": "table",
           "instant": true,
           "interval": "",
@@ -1058,7 +1244,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 12
+        "y": 14
       },
       "id": 16,
       "panels": [],
@@ -1114,7 +1300,8 @@
                 "value": 80
               }
             ]
-          }
+          },
+          "unit": "Fil"
         },
         "overrides": []
       },
@@ -1122,7 +1309,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 13
+        "y": 15
       },
       "id": 18,
       "maxPerRow": 3,
@@ -1141,7 +1328,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "{__name__=\"lotus_actor_balance\",job=\"$job\",api=\"$api\",miner_id=\"$miner_id\"}",
+          "expr": "{__name__=\"lotus_actor_balance\",job=\"$job\",instance=\"$instance\",miner_id=\"$miner_id\"}",
           "interval": "",
           "legendFormat": "{{tag}} - {{address}}",
           "refId": "A"
@@ -1157,7 +1344,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 37
+        "y": 39
       },
       "id": 28,
       "panels": [],
@@ -1294,7 +1481,7 @@
         "h": 10,
         "w": 8,
         "x": 0,
-        "y": 38
+        "y": 40
       },
       "id": 30,
       "maxPerRow": 3,
@@ -1302,13 +1489,13 @@
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "8.0.6",
+      "pluginVersion": "",
       "repeat": "miner_id",
       "repeatDirection": "h",
       "targets": [
         {
           "exemplar": true,
-          "expr": "lotus_miner_deadline_open_epoch{job=\"$job\",api=\"$api\",miner_id=\"$miner_id\"}",
+          "expr": "lotus_miner_deadline_open_epoch{job=\"$job\",instance=\"$instance\",miner_id=\"$miner_id\"}",
           "format": "table",
           "instant": true,
           "interval": "",
@@ -1317,7 +1504,7 @@
         },
         {
           "exemplar": true,
-          "expr": "lotus_miner_deadline_open_time{job=\"$job\",api=\"$api\",miner_id=\"$miner_id\"} * 1000",
+          "expr": "lotus_miner_deadline_open_time{job=\"$job\",instance=\"$instance\",miner_id=\"$miner_id\"} * 1000",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -1327,7 +1514,7 @@
         },
         {
           "exemplar": true,
-          "expr": "lotus_miner_deadline_partitions{job=\"$job\",api=\"$api\",miner_id=\"$miner_id\"}",
+          "expr": "lotus_miner_deadline_partitions{job=\"$job\",instance=\"$instance\",miner_id=\"$miner_id\"}",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -1337,7 +1524,7 @@
         },
         {
           "exemplar": true,
-          "expr": "lotus_miner_deadline_partitions_proven{job=\"$job\",api=\"$api\",miner_id=\"$miner_id\"}",
+          "expr": "lotus_miner_deadline_partitions_proven{job=\"$job\",instance=\"$instance\",miner_id=\"$miner_id\"}",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -1347,7 +1534,7 @@
         },
         {
           "exemplar": true,
-          "expr": "lotus_miner_deadline_sector_all{job=\"$job\",api=\"$api\",miner_id=\"$miner_id\"}",
+          "expr": "lotus_miner_deadline_sector_all{job=\"$job\",instance=\"$instance\",miner_id=\"$miner_id\"}",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -1357,7 +1544,7 @@
         },
         {
           "exemplar": true,
-          "expr": "lotus_miner_deadline_sector_faulty{job=\"$job\",api=\"$api\",miner_id=\"$miner_id\"}",
+          "expr": "lotus_miner_deadline_sector_faulty{job=\"$job\",instance=\"$instance\",miner_id=\"$miner_id\"}",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -1367,7 +1554,7 @@
         },
         {
           "exemplar": true,
-          "expr": "lotus_miner_deadline_sector_recovery{job=\"$job\",api=\"$api\",miner_id=\"$miner_id\"}",
+          "expr": "lotus_miner_deadline_sector_recovery{job=\"$job\",instance=\"$instance\",miner_id=\"$miner_id\"}",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -1376,7 +1563,7 @@
           "refId": "G"
         }
       ],
-      "title": "$miner_id Deadlines",
+      "title": "$miner_id",
       "transformations": [
         {
           "id": "seriesToColumns",
@@ -1476,8 +1663,8 @@
         "allValue": null,
         "current": {
           "selected": false,
-          "text": "test",
-          "value": "test"
+          "text": "lotus",
+          "value": "lotus"
         },
         "datasource": null,
         "definition": "label_values(lotus_current_time{}, job)",
@@ -1485,7 +1672,7 @@
         "error": null,
         "hide": 0,
         "includeAll": false,
-        "label": "JOB",
+        "label": "job",
         "multi": false,
         "name": "job",
         "options": [],
@@ -1503,21 +1690,21 @@
         "allValue": null,
         "current": {
           "selected": false,
-          "text": "172.16.11.214:1234",
-          "value": "172.16.11.214:1234"
+          "text": "112.49.22.140:9002",
+          "value": "112.49.22.140:9002"
         },
         "datasource": null,
-        "definition": "label_values(lotus_current_time{job=~\"$job\"}, api)",
+        "definition": "label_values(lotus_current_time{job=~\"$job\"}, instance)",
         "description": null,
         "error": null,
-        "hide": 0,
+        "hide": 2,
         "includeAll": false,
-        "label": "API",
+        "label": "instance",
         "multi": false,
-        "name": "api",
+        "name": "instance",
         "options": [],
         "query": {
-          "query": "label_values(lotus_current_time{job=~\"$job\"}, api)",
+          "query": "label_values(lotus_current_time{job=~\"$job\"}, instance)",
           "refId": "StandardVariableQuery"
         },
         "refresh": 1,
@@ -1538,17 +1725,17 @@
           ]
         },
         "datasource": null,
-        "definition": "label_values(lotus_miner_sector_size{api=~\"$api\"}, miner_id)",
+        "definition": "label_values(lotus_miner_sector_size{instance=~\"$instance\"}, miner_id)",
         "description": null,
         "error": null,
         "hide": 0,
         "includeAll": true,
-        "label": "MINER",
+        "label": "miner",
         "multi": true,
         "name": "miner_id",
         "options": [],
         "query": {
-          "query": "label_values(lotus_miner_sector_size{api=~\"$api\"}, miner_id)",
+          "query": "label_values(lotus_miner_sector_size{instance=~\"$instance\"}, miner_id)",
           "refId": "StandardVariableQuery"
         },
         "refresh": 1,
@@ -1566,6 +1753,6 @@
   "timepicker": {},
   "timezone": "",
   "title": "lotus",
-  "uid": "Filecoin",
-  "version": 66
+  "uid": "M2TqC1h7z",
+  "version": 25
 }

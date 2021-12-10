@@ -4,7 +4,11 @@ import (
 	"context"
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/lotus/api"
+	"github.com/filecoin-project/lotus/blockstore"
+	"github.com/filecoin-project/lotus/chain/actors/adt"
+	"github.com/filecoin-project/lotus/chain/actors/builtin/miner"
 	"github.com/filecoin-project/lotus/chain/types"
+	cbor "github.com/ipfs/go-ipld-cbor"
 	logging "github.com/ipfs/go-log/v2"
 	"reflect"
 	"strconv"
@@ -45,13 +49,13 @@ type ActorDeadlines struct {
 type ActorInfo struct {
 	DurationSeconds float64
 	ActorStr        string // 矿工号
-	ActorTag        string
+	ActorTag        string // 别名
 	PeerId          string
 	SectorSize      float64 // 扇区大小
 	HasMinPower     int
-	RawBytePower    float64
-	QualityAdjPower float64
-	Bls             []BalanceMetrics
+	RawBytePower    float64          // 原值算力
+	QualityAdjPower float64          // 有效算力
+	Bls             []BalanceMetrics // 各种余额
 }
 type BalanceMetrics struct {
 	Tag       string
@@ -184,7 +188,7 @@ func (a *fullNodeApi) actorDeadlinesMetrics(actor address.Address, tag string, b
 			if uint64(len(partitions)) > provenPartitions {
 				// 该值是当前高度-本轮窗口的开始高度。这个值会随着时间的递增而递增。
 				d.CurrentCost = float64(di.CurrentEpoch) - openEpoch
-				logger.Debugw("wait proven", "miner", actorStr,"index",dlIdx,"cost",d.CurrentCost)
+				logger.Debugw("wait proven", "miner", actorStr, "index", dlIdx, "cost", d.CurrentCost)
 			}
 			// 提交证明后，窗口数量等于已证明的窗口数量
 			if uint64(len(partitions)) == provenPartitions {
@@ -307,6 +311,7 @@ func (a *fullNodeApi) actorInfoMetrics(actor address.Address, tag string, ch cha
 	bl, err := strconv.ParseFloat(types.FIL(availableBalance).Unitless(), 64)
 	if err != nil {
 		logger.Warnf("failed decode wallet(%s) to fil: %v", actor.String(), err)
+		return
 	}
 
 	m.Bls = append(m.Bls, BalanceMetrics{
@@ -346,22 +351,25 @@ func (a *fullNodeApi) actorInfoMetrics(actor address.Address, tag string, ch cha
 			addrIDs["control"+strconv.Itoa(i)] = a
 		}
 	}
+	// 获取owner、worker、control钱包余额。
 	for walletTag, id := range addrIDs {
 		addr, err := a.api.StateAccountKey(a.ctx, id, a.tipSet)
 		if err != nil {
 			logger.Warnf("get account(%s) key failed:%v", id, err)
-			return
+			continue
 		}
 
 		walletBalance, err := a.api.WalletBalance(a.ctx, addr)
 		if err != nil {
 			logger.Warnf("failed get wallet(%s) Balance: %v", addr.String(), err)
+			continue
 		}
 
 		// 从lotus 的bigInt解析为float64，单位为Fil
 		b, err := strconv.ParseFloat(types.FIL(walletBalance).Unitless(), 64)
 		if err != nil {
 			logger.Warnf("failed decode wallet(%s) to fil: %v", addr.String(), err)
+			continue
 		}
 		m.Bls = append(m.Bls, BalanceMetrics{
 			Tag:       walletTag,
@@ -370,7 +378,80 @@ func (a *fullNodeApi) actorInfoMetrics(actor address.Address, tag string, ch cha
 			Balance:   b,
 		})
 	}
+
+	// 获取抵押、锁仓等余额
+	{
+		mact, err := a.api.StateGetActor(a.ctx, actor, types.EmptyTSK)
+		if err != nil {
+			logger.Warnw("metric", "get actor", err)
+			return
+		}
+
+		tbs := blockstore.NewTieredBstore(blockstore.NewAPIBlockstore(a.api), blockstore.NewMemory())
+		mas, err := miner.Load(adt.WrapStore(a.ctx, cbor.NewCborStore(tbs)), mact)
+		if err != nil {
+			logger.Warnw("metric", "miner load", err)
+			return
+		}
+
+		lockedFunds, err := mas.LockedFunds()
+		if err != nil {
+			logger.Warnw("metric", "mas get locked funds", err)
+			return
+		}
+
+		// 预提交的抵押
+		preCommit, err := strconv.ParseFloat(types.FIL(lockedFunds.PreCommitDeposits).Unitless(), 64)
+		if err != nil {
+			logger.Warnw("metric", "parse preCommit", err)
+			return
+		}
+		m.Bls = append(m.Bls, BalanceMetrics{
+			Tag:       "pre_commit",
+			Address:   actorStr,
+			AccountId: actorStr,
+			Balance:   preCommit,
+		})
+
+		// 抵押余额
+		pledge, err := strconv.ParseFloat(types.FIL(lockedFunds.InitialPledgeRequirement).Unitless(), 64)
+		if err != nil {
+			logger.Warnw("metric", "parse pledge", err)
+			return
+		}
+		m.Bls = append(m.Bls, BalanceMetrics{
+			Tag:       "pledge",
+			Address:   actorStr,
+			AccountId: actorStr,
+			Balance:   pledge,
+		})
+
+		// 锁仓余额
+		vesting, err := strconv.ParseFloat(types.FIL(lockedFunds.VestingFunds).Unitless(), 64)
+		if err != nil {
+			logger.Warnw("metric", "parse vesting", err)
+			return
+		}
+		m.Bls = append(m.Bls, BalanceMetrics{
+			Tag:       "vesting",
+			Address:   actorStr,
+			AccountId: actorStr,
+			Balance:   vesting,
+		})
+
+		// 总余额
+		balanceAll, err := strconv.ParseFloat(types.FIL(mact.Balance).Unitless(), 64)
+		if err != nil {
+			logger.Warnw("metric", "parse vesting", err)
+			return
+		}
+		m.Bls = append(m.Bls, BalanceMetrics{
+			Tag:       "balance",
+			Address:   actorStr,
+			AccountId: actorStr,
+			Balance:   balanceAll,
+		})
+	}
 	m.DurationSeconds = time.Now().Sub(start).Seconds()
-	//a.wg.Add(1)
 	ch <- m
 }

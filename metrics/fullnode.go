@@ -27,14 +27,15 @@ type fullNodeApi struct {
 }
 
 type dlMetrics struct {
-	Index      string  // deadline ID
-	Partitions float64 // 分区数
-	Sectors    float64 // 总扇区数
-	Faults     float64 // 错误扇区数
-	Recovery   float64 // 恢复扇区数
-	Proven     float64 // proven partition
-	OpenTime   float64 // 开始时间
-	OpenEpoch  float64 // 开始高度
+	Index         string  // deadline ID
+	Partitions    float64 // 分区数
+	Sectors       float64 // 总扇区数
+	ActiveSectors float64 // 活动扇区数
+	Faults        float64 // 错误扇区数
+	Recovery      float64 // 恢复扇区数
+	Proven        float64 // proven partition
+	OpenTime      float64 // 开始时间
+	OpenEpoch     float64 // 开始高度
 }
 type ActorDeadlines struct {
 	DurationSeconds  float64
@@ -173,28 +174,24 @@ func (a *fullNodeApi) actorDeadlinesMetrics(actor address.Address, tag string, b
 		openEpoch := float64(di.PeriodStart) + (float64(dlIdx) * 60)
 		openTime := (openEpoch-baseEpoch)*30 + baseTimestamp
 
+		//isEmpty, err := dl.PostSubmissions.IsEmpty()
+		//if err != nil {
+		//	logger.Warnf("getting %s provenPartitions: %s", actorStr, err)
+		//	continue
+		//}
+
 		provenPartitions, err := dl.PostSubmissions.Count()
 		if err != nil {
 			logger.Warnf("getting %s provenPartitions: %s", actorStr, err)
 			return
 		}
 		sectors := float64(0)
+		actives := float64(0)
 		faults := float64(0)
 		recovery := float64(0)
 
-		// 只计算当前窗口的耗时。
-		if di.Index == uint64(dlIdx) {
-			// 未提交证明时，窗口数量大于已证明的窗口数量
-			if uint64(len(partitions)) > provenPartitions {
-				// 该值是当前高度-本轮窗口的开始高度。这个值会随着时间的递增而递增。
-				d.CurrentCost = float64(di.CurrentEpoch) - openEpoch
-				logger.Debugw("wait proven", "miner", actorStr, "index", dlIdx, "cost", d.CurrentCost)
-			}
-			// 提交证明后，窗口数量等于已证明的窗口数量
-			if uint64(len(partitions)) == provenPartitions {
-				d.CurrentCost = -1
-			}
-		}
+		haveActiveSectorPartitions := uint64(0)
+
 		for _, partition := range partitions {
 			sc, err := partition.AllSectors.Count()
 			if err != nil {
@@ -203,6 +200,15 @@ func (a *fullNodeApi) actorDeadlinesMetrics(actor address.Address, tag string, b
 			}
 			sectors += float64(sc)
 
+			active, err := partition.ActiveSectors.Count()
+			if err != nil {
+				logger.Warnf("getting %s ActiveSectors: %s", actorStr, err)
+				continue
+			}
+			actives += float64(active)
+			if actives > 0 {
+				haveActiveSectorPartitions += 1
+			}
 			fc, err := partition.FaultySectors.Count()
 			if err != nil {
 				logger.Warnf("getting %s FaultySectors: %s", actorStr, err)
@@ -217,15 +223,42 @@ func (a *fullNodeApi) actorDeadlinesMetrics(actor address.Address, tag string, b
 			}
 			recovery += float64(rec)
 		}
+
+		// 只计算当前窗口的耗时。
+		if di.Index == uint64(dlIdx) {
+
+			// 有活动扇区的分区数大于提交证明的分区数 表示还没有做完证明
+			if haveActiveSectorPartitions > provenPartitions {
+				d.CurrentCost = float64(di.CurrentEpoch) - openEpoch
+				logger.Debugw("proven cost", "miner", actorStr, "index", dlIdx, "cost", d.CurrentCost)
+			} else {
+				// 总分区数 == 提交证明的分区数
+				if uint64(len(partitions)) == provenPartitions {
+					d.CurrentCost = -1
+					// 总分区数 > 提交证明的分区数
+				} else if uint64(len(partitions)) > provenPartitions {
+					d.CurrentCost = -2
+					// 其他情况
+				} else {
+					logger.Warnw("proven cost", "miner", actorStr, "index", dlIdx,
+						"partitions", partitions,
+						"provenPartitions", provenPartitions,
+						"haveActiveSectorPartitions", haveActiveSectorPartitions)
+					d.CurrentCost = -3
+				}
+			}
+		}
+
 		d.DlsMetrics = append(d.DlsMetrics, dlMetrics{
-			Index:      strconv.Itoa(dlIdx),
-			Partitions: float64(len(partitions)),
-			Sectors:    sectors,
-			Faults:     faults,
-			Recovery:   recovery,
-			Proven:     float64(provenPartitions),
-			OpenTime:   openTime,
-			OpenEpoch:  openEpoch,
+			Index:         strconv.Itoa(dlIdx),
+			Partitions:    float64(len(partitions)),
+			Sectors:       sectors,
+			ActiveSectors: actives,
+			Faults:        faults,
+			Recovery:      recovery,
+			Proven:        float64(provenPartitions),
+			OpenTime:      openTime,
+			OpenEpoch:     openEpoch,
 		})
 	}
 	d.DurationSeconds = time.Now().Sub(start).Seconds()

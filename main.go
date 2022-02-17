@@ -49,6 +49,7 @@ type FullNodeMetrics struct {
 	MinerDeadlineSectorsRecovery  *prometheus.GaugeVec
 	MinerDeadlineSectorsFaulty    *prometheus.GaugeVec
 	MinerDeadlineSectorsAll       *prometheus.GaugeVec
+	MinerDeadlineSectorsActive    *prometheus.GaugeVec
 	MinerDeadlinePartitions       *prometheus.GaugeVec
 	MinerDeadlinePartitionsProven *prometheus.GaugeVec
 	MinerDeadlineOpenEpoch        *prometheus.GaugeVec
@@ -128,6 +129,12 @@ func NewFullNode() *FullNodeMetrics {
 				Name:      "miner_deadline_sector_all",
 				Help:      "return miner deadline all sector number.",
 			}, deadlineLabel),
+		MinerDeadlineSectorsActive: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: namespace,
+				Name:      "miner_deadline_sector_active",
+				Help:      "return miner deadline active sector number.",
+			}, deadlineLabel),
 		MinerDeadlinePartitions: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace: namespace,
@@ -150,7 +157,7 @@ func NewFullNode() *FullNodeMetrics {
 			prometheus.GaugeOpts{
 				Namespace: namespace,
 				Name:      "miner_deadline_info",
-				Help:      "return miner current deadline cost(-1:proven,0;unknown,other:cost height).",
+				Help:      "return miner current deadline cost(-1:all partition has proven,-2:some partition was not proven,other:cost height).",
 			}, []string{"api", "miner_id", "miner_tag", "period_start", "index", "open_epoch"}),
 		MinerRawBytePower: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
@@ -190,6 +197,7 @@ func (f *FullNodeMetrics) Describe(ch chan<- *prometheus.Desc) {
 	f.MinerDeadlineSectorsRecovery.Describe(ch)
 	f.MinerDeadlineSectorsFaulty.Describe(ch)
 	f.MinerDeadlineSectorsAll.Describe(ch)
+	f.MinerDeadlineSectorsActive.Describe(ch)
 	f.MinerDeadlinePartitions.Describe(ch)
 	f.MinerDeadlinePartitionsProven.Describe(ch)
 	f.MinerDeadlineOpenEpoch.Describe(ch)
@@ -213,6 +221,7 @@ func (f *FullNodeMetrics) Collect(ch chan<- prometheus.Metric) {
 	f.MinerDeadlineSectorsRecovery.Reset()
 	f.MinerDeadlineSectorsFaulty.Reset()
 	f.MinerDeadlineSectorsAll.Reset()
+	f.MinerDeadlineSectorsActive.Reset()
 	f.MinerDeadlinePartitions.Reset()
 	f.MinerDeadlinePartitionsProven.Reset()
 	f.MinerDeadlineOpenEpoch.Reset()
@@ -275,7 +284,7 @@ func (f *FullNodeMetrics) Collect(ch chan<- prometheus.Metric) {
 				f.ActorBalance.WithLabelValues(fullNodeAddress, bb.ActorStr, bls.Address, bls.Tag, bls.AccountId, bb.ActorTag).Set(bls.Balance)
 			}
 		}
-		logger.Debugw("receive", "actor info", counter)
+		//logger.Debugw("receive", "actor info", counter)
 	}()
 
 	wg.Add(1)
@@ -295,11 +304,12 @@ func (f *FullNodeMetrics) Collect(ch chan<- prometheus.Metric) {
 				f.MinerDeadlineSectorsRecovery.WithLabelValues(fullNodeAddress, dd.ActorStr, dd.ActorTag, dl.Index).Set(dl.Recovery)
 				f.MinerDeadlineSectorsFaulty.WithLabelValues(fullNodeAddress, dd.ActorStr, dd.ActorTag, dl.Index).Set(dl.Faults)
 				f.MinerDeadlineSectorsAll.WithLabelValues(fullNodeAddress, dd.ActorStr, dd.ActorTag, dl.Index).Set(dl.Sectors)
+				f.MinerDeadlineSectorsActive.WithLabelValues(fullNodeAddress, dd.ActorStr, dd.ActorTag, dl.Index).Set(dl.ActiveSectors)
 				f.MinerDeadlinePartitions.WithLabelValues(fullNodeAddress, dd.ActorStr, dd.ActorTag, dl.Index).Set(dl.Partitions)
 				f.MinerDeadlinePartitionsProven.WithLabelValues(fullNodeAddress, dd.ActorStr, dd.ActorTag, dl.Index).Set(dl.Proven)
 			}
 		}
-		logger.Debugw("receive", "deadline", counter)
+		//logger.Debugw("receive", "deadline", counter)
 	}()
 
 	wg.Add(1)
@@ -315,7 +325,7 @@ func (f *FullNodeMetrics) Collect(ch chan<- prometheus.Metric) {
 				f.FullNodeSync.WithLabelValues(fullNodeAddress, sy.WorkerID, sy.Status).Set(sy.HeightDiff)
 			}
 		}
-		logger.Debugw("receive", "fullnode_info", counter)
+		//logger.Debugw("receive", "fullnode_info", counter)
 	}()
 
 	wg.Add(1)
@@ -346,6 +356,7 @@ func (f *FullNodeMetrics) Collect(ch chan<- prometheus.Metric) {
 	f.MinerDeadlineSectorsRecovery.Collect(ch)
 	f.MinerDeadlineSectorsFaulty.Collect(ch)
 	f.MinerDeadlineSectorsAll.Collect(ch)
+	f.MinerDeadlineSectorsActive.Collect(ch)
 	f.MinerDeadlinePartitions.Collect(ch)
 	f.MinerDeadlinePartitionsProven.Collect(ch)
 	f.MinerDeadlineOpenEpoch.Collect(ch)

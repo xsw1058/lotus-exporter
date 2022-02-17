@@ -3,7 +3,6 @@ module lotus-exporter
 go 1.17
 
 require (
-	github.com/fatih/color v1.9.0
 	github.com/filecoin-project/go-address v0.0.6
 	github.com/filecoin-project/go-jsonrpc v0.1.4-0.20210217175800-45ea43ac2bec
 	github.com/filecoin-project/lotus v1.13.0
@@ -95,7 +94,6 @@ require (
 	github.com/libp2p/go-libp2p-pubsub v0.5.4 // indirect
 	github.com/libp2p/go-msgio v0.0.6 // indirect
 	github.com/libp2p/go-openssl v0.0.7 // indirect
-	github.com/mattn/go-colorable v0.1.8 // indirect
 	github.com/mattn/go-isatty v0.0.13 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
 	github.com/miekg/dns v1.1.43 // indirect

@@ -401,8 +401,7 @@ func (a *fullNodeApi) actorInfoMetrics(actor address.Address, tag string, ch cha
 		}
 
 		var addrStr = "unknown"
-		if name, av, ok := actors.GetActorMetaByCode(act.Code); ok {
-			logger.Infof("id:%v ,name:%v, av:%v", id, name, av)
+		if name, _, ok := actors.GetActorMetaByCode(act.Code); ok {
 			switch name {
 			case actors.MultisigKey:
 				addrStr = id.String()

@@ -5,6 +5,7 @@ import (
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/lotus/api"
 	"github.com/filecoin-project/lotus/blockstore"
+	"github.com/filecoin-project/lotus/chain/actors"
 	"github.com/filecoin-project/lotus/chain/actors/adt"
 	"github.com/filecoin-project/lotus/chain/actors/builtin/miner"
 	"github.com/filecoin-project/lotus/chain/types"
@@ -386,29 +387,40 @@ func (a *fullNodeApi) actorInfoMetrics(actor address.Address, tag string, ch cha
 	}
 	// 获取owner、worker、control钱包余额。
 	for walletTag, id := range addrIDs {
-		addr, err := a.api.StateAccountKey(a.ctx, id, a.tipSet)
+		act, err := a.api.StateGetActor(a.ctx, id, a.tipSet)
 		if err != nil {
-			logger.Warnf("get account(%s) key failed:%v", id, err)
-			continue
-		}
-
-		walletBalance, err := a.api.WalletBalance(a.ctx, addr)
-		if err != nil {
-			logger.Warnf("failed get wallet(%s) Balance: %v", addr.String(), err)
+			logger.Warnf("get accout(%v) actor failed:%v", id, err)
 			continue
 		}
 
 		// 从lotus 的bigInt解析为float64，单位为Fil
-		b, err := strconv.ParseFloat(types.FIL(walletBalance).Unitless(), 64)
+		balance, err := strconv.ParseFloat(types.FIL(act.Balance).Unitless(), 64)
 		if err != nil {
-			logger.Warnf("failed decode wallet(%s) to fil: %v", addr.String(), err)
+			logger.Warnf("failed decode wallet(%s) to fil: %v", id, err)
 			continue
 		}
+
+		var addrStr = "unknown"
+		if name, av, ok := actors.GetActorMetaByCode(act.Code); ok {
+			logger.Infof("id:%v ,name:%v, av:%v", id, name, av)
+			switch name {
+			case actors.MultisigKey:
+				addrStr = id.String()
+			case actors.AccountKey:
+				addr, err := a.api.StateAccountKey(a.ctx, id, a.tipSet)
+				if err != nil {
+					logger.Warnf("get account(%s) key failed:%v", id, err)
+					continue
+				}
+				addrStr = addr.String()
+			}
+		}
+
 		m.Bls = append(m.Bls, BalanceMetrics{
 			Tag:       walletTag,
-			Address:   addr.String(),
+			Address:   addrStr,
 			AccountId: id.String(),
-			Balance:   b,
+			Balance:   balance,
 		})
 	}
 

@@ -21,8 +21,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 4,
-  "iteration": 1645085489740,
+  "id": 10,
+  "iteration": 1663035848850,
   "links": [],
   "panels": [
     {
@@ -138,7 +138,7 @@
       },
       "gridPos": {
         "h": 2,
-        "w": 6,
+        "w": 4,
         "x": 0,
         "y": 1
       },
@@ -275,13 +275,27 @@
                 "value": 1
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "消息池"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "continuous-BlYlRd"
+                }
+              }
+            ]
           }
         ]
       },
       "gridPos": {
         "h": 2,
-        "w": 6,
-        "x": 6,
+        "w": 8,
+        "x": 4,
         "y": 1
       },
       "id": 68,
@@ -318,6 +332,15 @@
           "interval": "",
           "legendFormat": "高度差",
           "refId": "A"
+        },
+        {
+          "exemplar": true,
+          "expr": "lotus_mpool_pending_number{job=\"$job\",env=\"$env\",instance=\"$instance\"}",
+          "hide": false,
+          "instant": true,
+          "interval": "",
+          "legendFormat": "消息池",
+          "refId": "C"
         }
       ],
       "type": "stat"
@@ -718,7 +741,7 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 55
+                "value": 63
               }
             ]
           },
@@ -1231,220 +1254,6 @@
       "type": "table"
     },
     {
-      "collapsed": false,
-      "datasource": null,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 14
-      },
-      "id": 16,
-      "panels": [],
-      "title": "余额详情",
-      "type": "row"
-    },
-    {
-      "datasource": null,
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "Fil"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 0,
-        "y": 15
-      },
-      "id": 18,
-      "maxPerRow": 3,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "single"
-        }
-      },
-      "repeat": "miner_id",
-      "repeatDirection": "h",
-      "targets": [
-        {
-          "exemplar": true,
-          "expr": "{__name__=\"lotus_actor_balance\",job=\"$job\",env=\"$env\",instance=\"$instance\",miner_id=\"$miner_id\"}",
-          "interval": "",
-          "legendFormat": "{{tag}} - {{address}}",
-          "refId": "A"
-        }
-      ],
-      "title": "$miner_id",
-      "type": "timeseries"
-    },
-    {
-      "collapsed": false,
-      "datasource": null,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 39
-      },
-      "id": 111,
-      "panels": [],
-      "repeat": null,
-      "title": "有效算力详情",
-      "type": "row"
-    },
-    {
-      "datasource": null,
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "linear",
-            "lineStyle": {
-              "fill": "solid"
-            },
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          },
-          "unit": "bytes"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 0,
-        "y": 40
-      },
-      "id": 129,
-      "maxPerRow": 3,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "hidden",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "single"
-        }
-      },
-      "repeat": "miner_id",
-      "repeatDirection": "h",
-      "targets": [
-        {
-          "exemplar": true,
-          "expr": "{__name__=\"lotus_miner_quality_adj_power\",job=\"$job\",env=\"$env\",instance=\"$instance\",miner_id=\"$miner_id\"}",
-          "instant": false,
-          "interval": "",
-          "legendFormat": "",
-          "refId": "A"
-        }
-      ],
-      "title": "$miner_id",
-      "type": "timeseries"
-    },
-    {
-      "collapsed": false,
-      "datasource": null,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 64
-      },
-      "id": 28,
-      "panels": [],
-      "title": "Deadlines",
-      "type": "row"
-    },
-    {
       "datasource": null,
       "fieldConfig": {
         "defaults": {
@@ -1454,7 +1263,8 @@
           "custom": {
             "align": "center",
             "displayMode": "auto",
-            "width": 60
+            "filterable": false,
+            "width": 70
           },
           "mappings": [],
           "thresholds": {
@@ -1475,96 +1285,68 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "窗口"
+              "options": "最早到期时间"
             },
             "properties": [
-              {
-                "id": "custom.width",
-                "value": 45
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "开始高度"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 72
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "开始时间"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 95
-              },
               {
                 "id": "unit",
                 "value": "dateTimeAsIsoNoDateIfToday"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "proven"
-            },
-            "properties": [
-              {
-                "id": "thresholds",
-                "value": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "transparent",
-                      "value": null
-                    },
-                    {
-                      "color": "green",
-                      "value": 1
-                    }
-                  ]
-                }
               },
               {
-                "id": "custom.displayMode",
-                "value": "color-background"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "错误"
-            },
-            "properties": [
+                "id": "custom.width",
+                "value": 160
+              },
               {
                 "id": "custom.displayMode",
                 "value": "color-text"
               },
               {
-                "id": "thresholds",
+                "id": "color",
                 "value": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "text",
-                      "value": null
-                    },
-                    {
-                      "color": "red",
-                      "value": 80
-                    }
-                  ]
+                  "mode": "continuous-RdYlGr"
                 }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "最晚到期时间"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeAsIsoNoDateIfToday"
+              },
+              {
+                "id": "custom.width",
+                "value": 160
+              },
+              {
+                "id": "custom.displayMode",
+                "value": "color-text"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "continuous-RdYlGr"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "节点"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 87
+              },
+              {
+                "id": "custom.align",
+                "value": "left"
               }
             ]
           }
@@ -1572,106 +1354,44 @@
       },
       "gridPos": {
         "h": 10,
-        "w": 8,
+        "w": 9,
         "x": 0,
-        "y": 65
+        "y": 14
       },
-      "id": 30,
-      "maxPerRow": 3,
+      "id": 275,
       "options": {
         "showHeader": true,
         "sortBy": []
       },
       "pluginVersion": "8.0.6",
-      "repeat": "miner_id",
-      "repeatDirection": "h",
       "targets": [
         {
           "exemplar": true,
-          "expr": "lotus_miner_deadline_open_epoch{job=\"$job\",env=\"$env\",instance=\"$instance\",miner_id=\"$miner_id\"}",
+          "expr": "lotus_miner_sector_earliest_expiration *1000",
           "format": "table",
-          "instant": true,
+          "hide": false,
+          "instant": false,
           "interval": "",
           "legendFormat": "",
           "refId": "A"
         },
         {
           "exemplar": true,
-          "expr": "lotus_miner_deadline_open_time{job=\"$job\",env=\"$env\",instance=\"$instance\",miner_id=\"$miner_id\"} * 1000",
+          "expr": "lotus_miner_sector_latest_expiration*1000",
           "format": "table",
           "hide": false,
-          "instant": true,
+          "instant": false,
           "interval": "",
           "legendFormat": "",
           "refId": "B"
-        },
-        {
-          "exemplar": true,
-          "expr": "lotus_miner_deadline_partitions{job=\"$job\",env=\"$env\",instance=\"$instance\",miner_id=\"$miner_id\"}",
-          "format": "table",
-          "hide": false,
-          "instant": true,
-          "interval": "",
-          "legendFormat": "",
-          "refId": "C"
-        },
-        {
-          "exemplar": true,
-          "expr": "lotus_miner_deadline_partitions_proven{job=\"$job\",env=\"$env\",instance=\"$instance\",miner_id=\"$miner_id\"}",
-          "format": "table",
-          "hide": false,
-          "instant": true,
-          "interval": "",
-          "legendFormat": "",
-          "refId": "D"
-        },
-        {
-          "exemplar": true,
-          "expr": "lotus_miner_deadline_sector_all{job=\"$job\",env=\"$env\",instance=\"$instance\",miner_id=\"$miner_id\"}",
-          "format": "table",
-          "hide": false,
-          "instant": true,
-          "interval": "",
-          "legendFormat": "",
-          "refId": "E"
-        },
-        {
-          "exemplar": true,
-          "expr": "lotus_miner_deadline_sector_faulty{job=\"$job\",env=\"$env\",instance=\"$instance\",miner_id=\"$miner_id\"}",
-          "format": "table",
-          "hide": false,
-          "instant": true,
-          "interval": "",
-          "legendFormat": "",
-          "refId": "F"
-        },
-        {
-          "exemplar": true,
-          "expr": "lotus_miner_deadline_sector_recovery{job=\"$job\",env=\"$env\",instance=\"$instance\",miner_id=\"$miner_id\"}",
-          "format": "table",
-          "hide": false,
-          "instant": true,
-          "interval": "",
-          "legendFormat": "",
-          "refId": "G"
-        },
-        {
-          "exemplar": true,
-          "expr": "lotus_miner_deadline_sector_active{job=\"$job\",env=\"$env\",instance=\"$instance\",miner_id=\"$miner_id\"}",
-          "format": "table",
-          "hide": false,
-          "instant": true,
-          "interval": "",
-          "legendFormat": "",
-          "refId": "H"
         }
       ],
-      "title": "$miner_id",
+      "title": "扇区到期",
       "transformations": [
         {
           "id": "seriesToColumns",
           "options": {
-            "byField": "index"
+            "byField": "miner_id"
           }
         },
         {
@@ -1680,86 +1400,1216 @@
             "excludeByName": {
               "Time 1": true,
               "Time 2": true,
-              "Time 3": true,
-              "Time 4": true,
-              "Time 5": true,
-              "Time 6": true,
-              "Time 7": true,
-              "Time 8": true,
               "__name__ 1": true,
               "__name__ 2": true,
-              "__name__ 3": true,
-              "__name__ 4": true,
-              "__name__ 5": true,
-              "__name__ 6": true,
-              "__name__ 7": true,
-              "api 1": true,
-              "api 2": true,
-              "api 3": true,
-              "api 4": true,
-              "api 5": true,
-              "api 6": true,
-              "api 7": true,
-              "api 8": true,
               "env 1": true,
               "env 2": true,
-              "env 3": true,
-              "env 4": true,
-              "env 5": true,
-              "env 6": true,
-              "env 7": true,
-              "env 8": true,
               "instance 1": true,
               "instance 2": true,
-              "instance 3": true,
-              "instance 4": true,
-              "instance 5": true,
-              "instance 6": true,
-              "instance 7": true,
-              "instance 8": true,
               "job 1": true,
               "job 2": true,
-              "job 3": true,
-              "job 4": true,
-              "job 5": true,
-              "job 6": true,
-              "job 7": true,
-              "job 8": true,
-              "miner_id 1": true,
-              "miner_id 2": true,
-              "miner_id 3": true,
-              "miner_id 4": true,
-              "miner_id 5": true,
-              "miner_id 6": true,
-              "miner_id 7": true,
-              "miner_id 8": true,
-              "miner_tag 1": true,
               "miner_tag 2": true,
-              "miner_tag 3": true,
-              "miner_tag 4": true,
-              "miner_tag 5": true,
-              "miner_tag 6": true,
-              "miner_tag 7": true,
-              "miner_tag 8": true
+              "sector_number 1": true,
+              "sector_number 2": true
             },
-            "indexByName": {},
+            "indexByName": {
+              "Time 1": 2,
+              "Time 2": 9,
+              "Value #A": 8,
+              "Value #B": 16,
+              "env 1": 3,
+              "env 2": 10,
+              "epoch 1": 4,
+              "epoch 2": 11,
+              "instance 1": 5,
+              "instance 2": 12,
+              "job 1": 6,
+              "job 2": 13,
+              "miner_id": 0,
+              "miner_tag 1": 1,
+              "miner_tag 2": 14,
+              "sector_number 1": 7,
+              "sector_number 2": 15
+            },
             "renameByName": {
-              "Time 1": "",
-              "Value #A": "开始高度",
-              "Value #B": "开始时间",
-              "Value #C": "分区数",
-              "Value #D": "proven",
-              "Value #E": "扇区数",
-              "Value #F": "错误",
-              "Value #G": "恢复",
-              "Value #H": "活动数",
-              "index": "窗口",
-              "miner_tag 7": ""
+              "Time 2": "",
+              "Value #A": "最早到期时间",
+              "Value #B": "最晚到期时间",
+              "epoch 1": "最早高度",
+              "epoch 2": "最晚高度",
+              "instance 1": "",
+              "miner_id": "节点",
+              "miner_tag 1": "别名",
+              "sector_number 1": "",
+              "sector_number 2": ""
             }
+          }
+        },
+        {
+          "id": "sortBy",
+          "options": {
+            "fields": {},
+            "sort": [
+              {
+                "field": "最早到期时间"
+              }
+            ]
           }
         }
       ],
       "type": "table"
+    },
+    {
+      "datasource": null,
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "dateTimeAsIsoNoDateIfToday"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value #A"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "rgba(214, 121, 121, 1)",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 2,
+        "w": 3,
+        "x": 9,
+        "y": 14
+      },
+      "id": 312,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/^Value \\#A$/",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "lotus_collect_timestamp * 1000",
+          "format": "table",
+          "instant": false,
+          "interval": "",
+          "legendFormat": "扇区更新",
+          "refId": "A"
+        }
+      ],
+      "title": "扇区更新时间",
+      "transformations": [],
+      "type": "stat"
+    },
+    {
+      "collapsed": true,
+      "datasource": null,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 24
+      },
+      "id": 267,
+      "panels": [
+        {
+          "datasource": null,
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "bars",
+                "fillOpacity": 91,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineInterpolation": "linear",
+                "lineWidth": 0,
+                "pointSize": 1,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "normal"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "Fil"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 9,
+            "w": 8,
+            "x": 0,
+            "y": 25
+          },
+          "id": 285,
+          "maxPerRow": 3,
+          "options": {
+            "legend": {
+              "calcs": [
+                "mean"
+              ],
+              "displayMode": "table",
+              "placement": "right"
+            },
+            "tooltip": {
+              "mode": "single"
+            }
+          },
+          "repeat": "miner_id",
+          "repeatDirection": "h",
+          "targets": [
+            {
+              "exemplar": false,
+              "expr": "lotus_miner_sector_remaining_life_initial_pledge{miner_id=\"$miner_id\"}",
+              "format": "time_series",
+              "instant": false,
+              "interval": "",
+              "intervalFactor": 10,
+              "legendFormat": "{{life}}",
+              "refId": "A"
+            }
+          ],
+          "title": "$miner_id",
+          "type": "timeseries"
+        }
+      ],
+      "title": "扇区初始质押详情",
+      "type": "row"
+    },
+    {
+      "collapsed": true,
+      "datasource": null,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 25
+      },
+      "id": 215,
+      "panels": [
+        {
+          "datasource": null,
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "bars",
+                "fillOpacity": 91,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineInterpolation": "linear",
+                "lineWidth": 0,
+                "pointSize": 1,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "normal"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "dead"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "rgba(253, 249, 249, 1)",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "lt_001d"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "rgba(235, 6, 33, 1)",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "lt_007d"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "light-red",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "lt_030d"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "dark-orange",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "lt_060d"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "light-orange",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "lt_090d"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "super-light-orange",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "lt_120d"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "yellow",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "lt_150d"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "rgba(195, 211, 8, 1)",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "lt_180d"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "rgba(87, 197, 33, 1)",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "lt_210d"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "rgba(103, 249, 167, 1)",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "lt_240d"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "rgba(41, 202, 197, 1)",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "lt_270d"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "rgba(82, 182, 240, 1)",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "lt_300d"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "rgba(29, 110, 233, 1)",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "lt_330d"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "rgba(57, 51, 207, 1)",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "lt_360d"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "rgba(93, 51, 142, 1)",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "lt_390d"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "rgba(152, 70, 199, 1)",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "lt_420d"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "rgba(185, 147, 231, 1)",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "lt_450d"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "rgba(133, 43, 189, 1)",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "lt_480d"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "rgba(116, 50, 239, 1)",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "lt_510d"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "rgba(149, 70, 209, 1)",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "lt_540d"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "rgba(199, 40, 228, 1)",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "gt_540d"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "rgba(247, 248, 248, 1)",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 9,
+            "w": 8,
+            "x": 0,
+            "y": 26
+          },
+          "id": 241,
+          "maxPerRow": 3,
+          "options": {
+            "legend": {
+              "calcs": [
+                "mean"
+              ],
+              "displayMode": "table",
+              "placement": "right"
+            },
+            "tooltip": {
+              "mode": "single"
+            }
+          },
+          "repeat": "miner_id",
+          "repeatDirection": "h",
+          "targets": [
+            {
+              "exemplar": false,
+              "expr": "lotus_miner_sector_remaining_life_count{miner_id=\"$miner_id\"}",
+              "format": "time_series",
+              "instant": false,
+              "interval": "",
+              "intervalFactor": 10,
+              "legendFormat": "{{life}}",
+              "refId": "A"
+            }
+          ],
+          "title": "$miner_id",
+          "type": "timeseries"
+        }
+      ],
+      "title": "扇区生命周期详情",
+      "type": "row"
+    },
+    {
+      "collapsed": true,
+      "datasource": null,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 26
+      },
+      "id": 16,
+      "panels": [
+        {
+          "datasource": null,
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "Fil"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 8,
+            "x": 0,
+            "y": 27
+          },
+          "id": 18,
+          "maxPerRow": 3,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom"
+            },
+            "tooltip": {
+              "mode": "single"
+            }
+          },
+          "repeat": "miner_id",
+          "repeatDirection": "h",
+          "targets": [
+            {
+              "exemplar": true,
+              "expr": "{__name__=\"lotus_actor_balance\",job=\"$job\",env=\"$env\",instance=\"$instance\",miner_id=\"$miner_id\"}",
+              "interval": "",
+              "legendFormat": "{{tag}} - {{address}}",
+              "refId": "A"
+            }
+          ],
+          "title": "$miner_id",
+          "type": "timeseries"
+        }
+      ],
+      "title": "余额详情",
+      "type": "row"
+    },
+    {
+      "collapsed": true,
+      "datasource": null,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 27
+      },
+      "id": 111,
+      "panels": [
+        {
+          "datasource": null,
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineInterpolation": "linear",
+                "lineStyle": {
+                  "fill": "solid"
+                },
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "bytes"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 8,
+            "x": 0,
+            "y": 28
+          },
+          "id": 129,
+          "maxPerRow": 3,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "hidden",
+              "placement": "bottom"
+            },
+            "tooltip": {
+              "mode": "single"
+            }
+          },
+          "repeat": "miner_id",
+          "repeatDirection": "h",
+          "targets": [
+            {
+              "exemplar": true,
+              "expr": "{__name__=\"lotus_miner_quality_adj_power\",job=\"$job\",env=\"$env\",instance=\"$instance\",miner_id=\"$miner_id\"}",
+              "instant": false,
+              "interval": "",
+              "legendFormat": "",
+              "refId": "A"
+            }
+          ],
+          "title": "$miner_id",
+          "type": "timeseries"
+        }
+      ],
+      "repeat": null,
+      "title": "有效算力详情",
+      "type": "row"
+    },
+    {
+      "collapsed": true,
+      "datasource": null,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 28
+      },
+      "id": 28,
+      "panels": [
+        {
+          "datasource": null,
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "align": "center",
+                "displayMode": "auto",
+                "width": 60
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "窗口"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 45
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "开始高度"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 72
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "开始时间"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 95
+                  },
+                  {
+                    "id": "unit",
+                    "value": "dateTimeAsIsoNoDateIfToday"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "proven"
+                },
+                "properties": [
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "transparent",
+                          "value": null
+                        },
+                        {
+                          "color": "green",
+                          "value": 1
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "custom.displayMode",
+                    "value": "color-background"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "错误"
+                },
+                "properties": [
+                  {
+                    "id": "custom.displayMode",
+                    "value": "color-text"
+                  },
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "text",
+                          "value": null
+                        },
+                        {
+                          "color": "red",
+                          "value": 80
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 10,
+            "w": 8,
+            "x": 0,
+            "y": 29
+          },
+          "id": 30,
+          "maxPerRow": 3,
+          "options": {
+            "showHeader": true,
+            "sortBy": []
+          },
+          "pluginVersion": "8.0.7",
+          "repeat": "miner_id",
+          "repeatDirection": "h",
+          "targets": [
+            {
+              "exemplar": true,
+              "expr": "lotus_miner_deadline_open_epoch{job=\"$job\",env=\"$env\",instance=\"$instance\",miner_id=\"$miner_id\"}",
+              "format": "table",
+              "instant": true,
+              "interval": "",
+              "legendFormat": "",
+              "refId": "A"
+            },
+            {
+              "exemplar": true,
+              "expr": "lotus_miner_deadline_open_time{job=\"$job\",env=\"$env\",instance=\"$instance\",miner_id=\"$miner_id\"} * 1000",
+              "format": "table",
+              "hide": false,
+              "instant": true,
+              "interval": "",
+              "legendFormat": "",
+              "refId": "B"
+            },
+            {
+              "exemplar": true,
+              "expr": "lotus_miner_deadline_partitions{job=\"$job\",env=\"$env\",instance=\"$instance\",miner_id=\"$miner_id\"}",
+              "format": "table",
+              "hide": false,
+              "instant": true,
+              "interval": "",
+              "legendFormat": "",
+              "refId": "C"
+            },
+            {
+              "exemplar": true,
+              "expr": "lotus_miner_deadline_partitions_proven{job=\"$job\",env=\"$env\",instance=\"$instance\",miner_id=\"$miner_id\"}",
+              "format": "table",
+              "hide": false,
+              "instant": true,
+              "interval": "",
+              "legendFormat": "",
+              "refId": "D"
+            },
+            {
+              "exemplar": true,
+              "expr": "lotus_miner_deadline_sector_all{job=\"$job\",env=\"$env\",instance=\"$instance\",miner_id=\"$miner_id\"}",
+              "format": "table",
+              "hide": false,
+              "instant": true,
+              "interval": "",
+              "legendFormat": "",
+              "refId": "E"
+            },
+            {
+              "exemplar": true,
+              "expr": "lotus_miner_deadline_sector_faulty{job=\"$job\",env=\"$env\",instance=\"$instance\",miner_id=\"$miner_id\"}",
+              "format": "table",
+              "hide": false,
+              "instant": true,
+              "interval": "",
+              "legendFormat": "",
+              "refId": "F"
+            },
+            {
+              "exemplar": true,
+              "expr": "lotus_miner_deadline_sector_recovery{job=\"$job\",env=\"$env\",instance=\"$instance\",miner_id=\"$miner_id\"}",
+              "format": "table",
+              "hide": false,
+              "instant": true,
+              "interval": "",
+              "legendFormat": "",
+              "refId": "G"
+            },
+            {
+              "exemplar": true,
+              "expr": "lotus_miner_deadline_sector_active{job=\"$job\",env=\"$env\",instance=\"$instance\",miner_id=\"$miner_id\"}",
+              "format": "table",
+              "hide": false,
+              "instant": true,
+              "interval": "",
+              "legendFormat": "",
+              "refId": "H"
+            }
+          ],
+          "title": "$miner_id",
+          "transformations": [
+            {
+              "id": "seriesToColumns",
+              "options": {
+                "byField": "index"
+              }
+            },
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time 1": true,
+                  "Time 2": true,
+                  "Time 3": true,
+                  "Time 4": true,
+                  "Time 5": true,
+                  "Time 6": true,
+                  "Time 7": true,
+                  "Time 8": true,
+                  "__name__ 1": true,
+                  "__name__ 2": true,
+                  "__name__ 3": true,
+                  "__name__ 4": true,
+                  "__name__ 5": true,
+                  "__name__ 6": true,
+                  "__name__ 7": true,
+                  "api 1": true,
+                  "api 2": true,
+                  "api 3": true,
+                  "api 4": true,
+                  "api 5": true,
+                  "api 6": true,
+                  "api 7": true,
+                  "api 8": true,
+                  "env 1": true,
+                  "env 2": true,
+                  "env 3": true,
+                  "env 4": true,
+                  "env 5": true,
+                  "env 6": true,
+                  "env 7": true,
+                  "env 8": true,
+                  "instance 1": true,
+                  "instance 2": true,
+                  "instance 3": true,
+                  "instance 4": true,
+                  "instance 5": true,
+                  "instance 6": true,
+                  "instance 7": true,
+                  "instance 8": true,
+                  "job 1": true,
+                  "job 2": true,
+                  "job 3": true,
+                  "job 4": true,
+                  "job 5": true,
+                  "job 6": true,
+                  "job 7": true,
+                  "job 8": true,
+                  "miner_id 1": true,
+                  "miner_id 2": true,
+                  "miner_id 3": true,
+                  "miner_id 4": true,
+                  "miner_id 5": true,
+                  "miner_id 6": true,
+                  "miner_id 7": true,
+                  "miner_id 8": true,
+                  "miner_tag 1": true,
+                  "miner_tag 2": true,
+                  "miner_tag 3": true,
+                  "miner_tag 4": true,
+                  "miner_tag 5": true,
+                  "miner_tag 6": true,
+                  "miner_tag 7": true,
+                  "miner_tag 8": true
+                },
+                "indexByName": {},
+                "renameByName": {
+                  "Time 1": "",
+                  "Value #A": "开始高度",
+                  "Value #B": "开始时间",
+                  "Value #C": "分区数",
+                  "Value #D": "proven",
+                  "Value #E": "扇区数",
+                  "Value #F": "错误",
+                  "Value #G": "恢复",
+                  "Value #H": "活动数",
+                  "index": "窗口",
+                  "miner_tag 7": ""
+                }
+              }
+            }
+          ],
+          "type": "table"
+        }
+      ],
+      "title": "Deadlines",
+      "type": "row"
     }
   ],
   "refresh": "10s",
@@ -1782,7 +2632,7 @@
         "definition": "label_values(lotus_current_time{}, job)",
         "description": null,
         "error": null,
-        "hide": 2,
+        "hide": 0,
         "includeAll": false,
         "label": "job",
         "multi": false,
@@ -1809,7 +2659,7 @@
         "definition": "label_values(lotus_current_time{job=~\"$job\"}, env)",
         "description": null,
         "error": null,
-        "hide": 2,
+        "hide": 0,
         "includeAll": false,
         "label": "env",
         "multi": false,
@@ -1836,7 +2686,7 @@
         "definition": "label_values(lotus_current_time{env=~\"$env\"}, instance)",
         "description": null,
         "error": null,
-        "hide": 2,
+        "hide": 0,
         "includeAll": false,
         "label": "instance",
         "multi": false,
@@ -1869,7 +2719,7 @@
         "error": null,
         "hide": 0,
         "includeAll": true,
-        "label": "miner",
+        "label": "miner_id",
         "multi": true,
         "name": "miner_id",
         "options": [],
@@ -1893,5 +2743,5 @@
   "timezone": "",
   "title": "lotus",
   "uid": "M2TqC1h7z",
-  "version": 40
+  "version": 2
 }

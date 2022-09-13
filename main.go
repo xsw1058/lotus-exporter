@@ -7,10 +7,11 @@ import (
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/go-jsonrpc"
 	"github.com/filecoin-project/lotus/api"
+	"github.com/filecoin-project/lotus/chain/types"
 	logging "github.com/ipfs/go-log/v2"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"lotus-exporter/metrics"
+	"github.com/xsw1058/lotus-exporter/metrics"
 	"net"
 	"net/http"
 	"os"
@@ -58,6 +59,8 @@ type FullNodeMetrics struct {
 	MinerQualityAdjPower          *prometheus.GaugeVec
 	MinerSectorSize               *prometheus.GaugeVec
 	ActorBalance                  *prometheus.GaugeVec
+	MPoolCounter                  *prometheus.GaugeVec
+	LocalMessageMPool             *prometheus.GaugeVec
 	// TODO miner
 	//version        *prometheus.GaugeVec
 	//workerName     *prometheus.GaugeVec
@@ -183,6 +186,18 @@ func NewFullNode() *FullNodeMetrics {
 				Name:      "actor_balance",
 				Help:      "return actor balance(fil).",
 			}, []string{"api", "miner_id", "address", "tag", "account_id", "miner_tag"}),
+		MPoolCounter: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: namespace,
+				Name:      "mpool_pending_number",
+				Help:      "return local message pool number.",
+			}, []string{"api"}),
+		LocalMessageMPool: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: namespace,
+				Name:      "local_message",
+				Help:      "return local message detail.",
+			}, []string{"api", "from", "to", "method", "cid"}),
 	}
 }
 
@@ -206,6 +221,8 @@ func (f *FullNodeMetrics) Describe(ch chan<- *prometheus.Desc) {
 	f.MinerQualityAdjPower.Describe(ch)
 	f.MinerSectorSize.Describe(ch)
 	f.ActorBalance.Describe(ch)
+	f.MPoolCounter.Describe(ch)
+	f.LocalMessageMPool.Describe(ch)
 }
 
 func (f *FullNodeMetrics) Collect(ch chan<- prometheus.Metric) {
@@ -230,6 +247,8 @@ func (f *FullNodeMetrics) Collect(ch chan<- prometheus.Metric) {
 	f.MinerQualityAdjPower.Reset()
 	f.MinerSectorSize.Reset()
 	f.ActorBalance.Reset()
+	f.MPoolCounter.Reset()
+	f.LocalMessageMPool.Reset()
 	// start
 	globalStart := time.Now()
 	headers := http.Header{"Authorization": []string{"Bearer " + fullNodeToken}}
@@ -264,6 +283,8 @@ func (f *FullNodeMetrics) Collect(ch chan<- prometheus.Metric) {
 	chi := make(chan metrics.FullNodeInfo)
 	// 外部钱包的余额。
 	chw := make(chan metrics.BalanceMetrics, 4)
+	// 消息信息
+	chm := make(chan metrics.MessageMetric, 4)
 
 	wg.Add(1)
 	go func() {
@@ -336,11 +357,31 @@ func (f *FullNodeMetrics) Collect(ch chan<- prometheus.Metric) {
 			f.ActorBalance.WithLabelValues(fullNodeAddress, "external", w.Address, w.Tag, w.AccountId, "unknown").Set(w.Balance)
 		}
 	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		for m := range chm {
+			f.ScrapeDuration.WithLabelValues(fullNodeAddress, "mpool").Set(m.DurationSeconds)
+			f.MPoolCounter.WithLabelValues(fullNodeAddress).Set(float64(m.MessageTotal))
+			for _, mm := range m.LocalMessages {
+				balance, err := strconv.ParseFloat(types.FIL(mm.Message.Value).Unitless(), 64)
+				if err != nil {
+					logger.Warnf("failed decode message(%s) value to fil: %v", mm.Cid(), err)
+					continue
+				}
+				f.LocalMessageMPool.WithLabelValues(
+					fullNodeAddress, mm.Message.From.String(), mm.Message.To.String(), mm.MethodStr, mm.Cid().String()).Set(balance)
+			}
+		}
+	}()
+
 	a := metrics.NewFullNodeApi(&APIFullNode, FullNodeCtx, ChainHead.Key())
 	go a.GetActorsDeadlinesMetrics(actorAddresses, BaseEpoch, BaseTimestamp, chd)
 	go a.GetActorsInfoMetrics(actorAddresses, chb)
 	go a.GetExternalWallet(walletAddresses, chw)
 	go a.GetFullNodeInfo(chi)
+	go a.MessagePool(chm)
 
 	wg.Wait()
 	f.ScrapeDuration.WithLabelValues(fullNodeAddress, "all").Set(time.Now().Sub(globalStart).Seconds())
@@ -365,6 +406,8 @@ func (f *FullNodeMetrics) Collect(ch chan<- prometheus.Metric) {
 	f.MinerQualityAdjPower.Collect(ch)
 	f.MinerSectorSize.Collect(ch)
 	f.ActorBalance.Collect(ch)
+	f.MPoolCounter.Collect(ch)
+	f.LocalMessageMPool.Collect(ch)
 }
 
 func main() {

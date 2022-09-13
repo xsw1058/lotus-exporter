@@ -9,8 +9,10 @@ import (
 	"github.com/filecoin-project/lotus/chain/actors/adt"
 	"github.com/filecoin-project/lotus/chain/actors/builtin/miner"
 	"github.com/filecoin-project/lotus/chain/types"
+	"github.com/ipfs/go-cid"
 	cbor "github.com/ipfs/go-ipld-cbor"
 	logging "github.com/ipfs/go-log/v2"
+	"github.com/xsw1058/lotus-exporter/message"
 	"reflect"
 	"strconv"
 	"sync"
@@ -22,9 +24,11 @@ var (
 )
 
 type fullNodeApi struct {
-	api    *api.FullNodeStruct
-	tipSet types.TipSetKey
-	ctx    context.Context
+	api          *api.FullNodeStruct
+	tipSet       types.TipSetKey
+	ctx          context.Context
+	ciDs         map[string]cid.Cid
+	localWallets []address.Address
 }
 
 type dlMetrics struct {
@@ -81,9 +85,11 @@ type syncMetrics struct {
 
 func NewFullNodeApi(api *api.FullNodeStruct, apiCtx context.Context, tipSet types.TipSetKey) *fullNodeApi {
 	return &fullNodeApi{
-		api:    api,
-		tipSet: tipSet,
-		ctx:    apiCtx,
+		api:          api,
+		tipSet:       tipSet,
+		ctx:          apiCtx,
+		ciDs:         nil,
+		localWallets: nil,
 	}
 }
 
@@ -498,4 +504,77 @@ func (a *fullNodeApi) actorInfoMetrics(actor address.Address, tag string, ch cha
 	}
 	m.DurationSeconds = time.Now().Sub(start).Seconds()
 	ch <- m
+}
+
+type localMessage struct {
+	*types.SignedMessage
+	MethodStr string
+}
+
+type MessageMetric struct {
+	DurationSeconds float64
+	MessageTotal    int
+	LocalMessages   []localMessage
+}
+
+func (a *fullNodeApi) MessagePool(ch chan MessageMetric) {
+	defer close(ch)
+	startTime := time.Now()
+	if a.ciDs == nil || a.localWallets == nil {
+
+		networkVersion, err := a.api.StateNetworkVersion(a.ctx, a.tipSet)
+		if err != nil {
+			logger.Warnf("api StateNetworkVersion:%v", err)
+			return
+		}
+
+		ciDsGet, err := a.api.StateActorCodeCIDs(a.ctx, networkVersion)
+		if err != nil {
+			logger.Warnf("api StateActorCodeCIDs:%v", err)
+			return
+		}
+
+		a.ciDs = ciDsGet
+
+		walletList, err := a.api.WalletList(a.ctx)
+		if err != nil {
+			logger.Warnf("api WalletList:%v", err)
+			return
+		}
+		a.localWallets = walletList
+	}
+
+	messages, err := a.api.MpoolPending(a.ctx, a.tipSet)
+	if err != nil {
+		logger.Warnf("api MpoolPending:%v", err)
+		return
+	}
+	var localMessages []localMessage
+	for _, m := range messages {
+		for _, w := range a.localWallets {
+			if m.Message.From == w {
+				actor, err := a.api.StateGetActor(a.ctx, m.Message.To, a.tipSet)
+				if err != nil {
+					logger.Warnf("api StateGetActor:%v", err)
+					continue
+				}
+
+				methodStr, err := message.GetMessageMethodStringByNum(a.ciDs, actor.Code.String(), m.Message.Method)
+				if err != nil {
+					logger.Warnf("GetMessageMethodStringByNum:%v", err)
+					continue
+				}
+				localMessages = append(localMessages, localMessage{
+					SignedMessage: m,
+					MethodStr:     methodStr,
+				})
+			}
+		}
+	}
+	c := MessageMetric{
+		DurationSeconds: time.Now().Sub(startTime).Seconds(),
+		MessageTotal:    len(messages),
+		LocalMessages:   localMessages,
+	}
+	ch <- c
 }

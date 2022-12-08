@@ -1,4 +1,4 @@
-package aggregation
+package demo
 
 import (
 	"errors"
@@ -18,19 +18,19 @@ func NewDemo() *Demo {
 
 func (d *Demo) CreateCollector(handler string) (metrics.LotusCollector, error) {
 	switch handler {
-	case metrics.AggregationDemo1Key:
+	case metrics.Demo1Key:
 		d1Metric, err := d.UpdateDemo1()
 		if err != nil {
 			return nil, err
 		}
 		return NewDemo1Collector(d1Metric)
-	case metrics.AggregationDemo2Key:
+	case metrics.Demo2Key:
 		d2Metric, err := d.UpdateDemo2()
 		if err != nil {
 			return nil, err
 		}
 		return NewDemo2Collector(d2Metric)
-	case metrics.AggregationDemo3Key:
+	case metrics.Demo3Key:
 		d3Metric, err := d.UpdateDemo3()
 		if err != nil {
 			return nil, err

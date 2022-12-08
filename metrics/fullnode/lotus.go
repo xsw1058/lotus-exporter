@@ -2,6 +2,7 @@ package fullnode
 
 import (
 	"context"
+	"errors"
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/go-jsonrpc"
 	lotusapi "github.com/filecoin-project/lotus/api"
@@ -10,22 +11,9 @@ import (
 	"github.com/ipfs/go-cid"
 	"github.com/xsw1058/lotus-exporter/config"
 	"github.com/xsw1058/lotus-exporter/metrics"
-	"log"
 	"net/http"
 	"sync"
 )
-
-type ChainMetric struct {
-	Version        string
-	ChainHeight    float64
-	BaseFee        float64
-	LocalTime      float64
-	NetworkVersion float64
-}
-
-//var (
-//	log = logging.Logger("full_node_metric")
-//)
 
 type chainInfo struct {
 	sync.Mutex
@@ -49,17 +37,16 @@ type chainInfo struct {
 }
 
 type FullNode struct {
-	mem    metrics.StorageAndLoader
 	ctx    context.Context
 	api    lotusapi.FullNodeStruct
 	closer jsonrpc.ClientCloser
 	chain  *chainInfo
 }
 
-func NewFullNode(ctx context.Context, opt config.LotusOpt, mem metrics.StorageAndLoader) (*FullNode, error) {
+func NewFullNode(ctx context.Context, opt config.LotusOpt, ) (*FullNode, error) {
 	var token = opt.LotusToken
 	var addr = opt.LotusAddress
-	log.Println(addr, token)
+
 	headers := http.Header{"Authorization": []string{"Bearer " + token}}
 
 	var api lotusapi.FullNodeStruct
@@ -103,7 +90,6 @@ func NewFullNode(ctx context.Context, opt config.LotusOpt, mem metrics.StorageAn
 	}
 
 	return &FullNode{
-		mem:    mem,
 		ctx:    ctx,
 		api:    api,
 		closer: closer,
@@ -111,8 +97,26 @@ func NewFullNode(ctx context.Context, opt config.LotusOpt, mem metrics.StorageAn
 	}, nil
 }
 
-// Update lotus api 查询逻辑
-func (l *FullNode) Update(storage metrics.Storage) error {
+func (l *FullNode) SingleUpdate(handler string) error {
+
+	switch handler {
+	case metrics.InfoKey:
+		return l.UpdateInfo()
+	}
+	return errors.New("no found handler")
+
+}
+
+type ChainMetric struct {
+	Version        string
+	ChainHeight    float64
+	BaseFee        float64
+	LocalTime      float64
+	NetworkVersion float64
+}
+
+// UpdateInfo lotus api 查询逻辑
+func (l *FullNode) UpdateInfo() error {
 	l.chain.Lock()
 	defer l.chain.Unlock()
 
@@ -152,6 +156,5 @@ func (l *FullNode) Update(storage metrics.Storage) error {
 	i.ChainHeight = float64(chainHead.Height())
 	i.Version = lotusAPIVersion.String()
 	i.NetworkVersion = float64(networkVersion)
-	storage.Store(metrics.InfoKey, i)
 	return nil
 }

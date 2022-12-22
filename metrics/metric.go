@@ -1,12 +1,24 @@
 package metrics
 
 import (
-	"errors"
-	"fmt"
+	logging "github.com/ipfs/go-log/v2"
 	"github.com/prometheus/client_golang/prometheus"
-	"log"
 	"sync"
 	"time"
+)
+
+var (
+	log = logging.Logger("metric")
+
+	rightNowUpdate     []string
+	eachEpochUpdate    []string
+	eachDeadlineUpdate []string
+)
+
+const (
+	RightNowScan = iota
+	EachEpochScan
+	EachDeadlineScan
 )
 
 type LotusCollector interface {
@@ -18,6 +30,10 @@ type LotusMetricsHandler interface {
 
 type AggregationUpdater interface {
 	Aggregation() <-chan *ScrapeResult
+}
+
+type Register interface {
+	RegisterHandler(name string, scanAt int, handler LotusMetricsHandler)
 }
 
 type ScrapeResult struct {
@@ -54,10 +70,17 @@ func NewHub() *Hub {
 	}
 }
 
-func (b *Hub) RegisterHandler(name string, handler LotusMetricsHandler) {
+func (b *Hub) RegisterHandler(name string, scanAt int, handler LotusMetricsHandler) {
 	b.Lock()
 	defer b.Unlock()
-
+	switch scanAt {
+	case EachEpochScan:
+		eachEpochUpdate = append(eachEpochUpdate, name)
+	case EachDeadlineScan:
+		eachDeadlineUpdate = append(eachDeadlineUpdate, name)
+	default:
+		rightNowUpdate = append(rightNowUpdate, name)
+	}
 	b.metricsHandlers[name] = handler
 }
 
@@ -67,17 +90,31 @@ func (b *Hub) Store(key string, res *ScrapeResult) {
 	b.mem[key] = res
 }
 
-func (b *Hub) SingleScrape(handlerKey string) error {
+func (b *Hub) AsyncScrape(handlersKey []string) {
+	wg := sync.WaitGroup{}
+
+	wg.Add(len(handlersKey))
+	for _, handlerKey := range handlersKey {
+		go func(k string) {
+			defer wg.Done()
+			b.SingleScrape(k)
+		}(handlerKey)
+	}
+
+	wg.Wait()
+}
+func (b *Hub) SingleScrape(handlerKey string) {
 	h, ok := b.metricsHandlers[handlerKey]
 	if !ok {
-		return errors.New(fmt.Sprintf("%v has not regist", handlerKey))
+		log.Debugf("%v has not regist", handlerKey)
+		return
 	}
 
 	start := time.Now()
 	var success = true
 	collector, err := h.CreateCollector(handlerKey)
 	if err != nil {
-		log.Printf("%v aggregation update: %v ", handlerKey, err)
+		log.Warnf("collector %v error: %v ", handlerKey, err)
 		success = false
 	}
 
@@ -91,19 +128,11 @@ func (b *Hub) SingleScrape(handlerKey string) error {
 		Builder: collector,
 	}
 	b.Store(handlerKey, r)
-	return nil
+
 }
 
 func (b *Hub) Aggregation() <-chan *ScrapeResult {
-
-	for _, key := range RightNowUpdate {
-		// 跳过未注册的.
-		err := b.SingleScrape(key)
-		if err != nil {
-			continue
-		}
-
-	}
+	b.AsyncScrape(rightNowUpdate)
 	ch := make(chan *ScrapeResult, len(b.mem))
 	defer close(ch)
 
@@ -115,35 +144,31 @@ func (b *Hub) Aggregation() <-chan *ScrapeResult {
 
 func (b *Hub) Run() {
 	// 首次启动进行调用更新
+	wg := sync.WaitGroup{}
+	var cs []string
+	wg.Add(len(b.metricsHandlers))
 	for key := range b.metricsHandlers {
+		cs = append(cs, key)
 		go func(key string) {
+			defer wg.Done()
+			defer log.Debugf("%v collector work done", key)
 			b.SingleScrape(key)
 		}(key)
 	}
+	log.Infow("register collector result", "len", len(cs), "rightNowUpdate", rightNowUpdate, "eachEpochUpdate", eachEpochUpdate, "eachDeadlineUpdate", eachDeadlineUpdate, "all", cs)
+	wg.Wait()
+	go func() {
+		tickerEpoch := time.NewTicker(time.Second * 30)
+		tickerDeadline := time.NewTicker(time.Second * 30 * 60)
 
-	tickerEpoch := time.NewTicker(time.Second * 10)
-	tickerDeadline := time.NewTicker(time.Second * 30)
-
-	for {
-		select {
-		// 每隔30秒发送更新请求.
-		case <-tickerEpoch.C:
-
-			for _, key := range EachEpochUpdate {
-				err := b.SingleScrape(key)
-				if err != nil {
-					continue
-				}
-			}
-
-		case <-tickerDeadline.C:
-
-			for _, key := range EachDeadlineUpdate {
-				err := b.SingleScrape(key)
-				if err != nil {
-					continue
-				}
+		for {
+			select {
+			// 每隔30秒发送更新请求.
+			case <-tickerEpoch.C:
+				b.AsyncScrape(eachEpochUpdate)
+			case <-tickerDeadline.C:
+				b.AsyncScrape(eachDeadlineUpdate)
 			}
 		}
-	}
+	}()
 }

@@ -1,37 +1,36 @@
 package main
 
 import (
-	"flag"
+	"context"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/xsw1058/lotus-exporter/collector"
+	"github.com/xsw1058/lotus-exporter/config"
 	"github.com/xsw1058/lotus-exporter/metrics"
-	"github.com/xsw1058/lotus-exporter/metrics/demo"
+	"github.com/xsw1058/lotus-exporter/metrics/fullnode"
 	"log"
 	"net/http"
 )
 
 func main() {
 	log.SetFlags(23)
-	log.Println("start.....")
-	a := demo.NewDemo()
+
 	hub := metrics.NewHub()
-	hub.RegisterHandler(metrics.Demo1Key, a)
-	hub.RegisterHandler(metrics.Demo2Key, a)
-	hub.RegisterHandler(metrics.Demo3Key, a)
+	opt := config.DefaultOpt()
+	log.Printf("conf: %v", opt)
+	fullNode := fullnode.MustNewFullNode(context.Background(), opt, hub)
+	fullNode.RegisterCollectors()
 
-	go hub.Run()
-
-	listen := flag.String("l", ":9002", "listen port")
-	flag.Parse()
+	hub.Run()
 
 	// 构建http server
 	server := http.Server{
-		Addr:    *listen,
+		Addr:    opt.ListenPort,
 		Handler: http.DefaultServeMux,
 	}
 	http.Handle("/metrics", newHandler(hub))
 	http.Handle("/test", promhttp.Handler())
+	log.Println("init done. start http server.....")
 	server.ListenAndServe()
 }
 
@@ -61,9 +60,10 @@ func (h *handler) innerHandler() (http.Handler, error) {
 		return nil, err
 	}
 	r.MustRegister(
-	//collectors.NewBuildInfoCollector(),
-	//collectors.NewProcessCollector(collectors.ProcessCollectorOpts{}),
-	//collectors.NewGoCollector(),
+		// prometheus 自带的一些监控.
+		//collectors.NewBuildInfoCollector(),
+		//collectors.NewProcessCollector(collectors.ProcessCollectorOpts{}),
+		//collectors.NewGoCollector(),
 	)
 	hh := promhttp.HandlerFor(
 		prometheus.Gatherers{r},

@@ -13,6 +13,8 @@ type AllCollector struct {
 	res                    []metrics.ScrapeStatus
 }
 
+const NameSpace = "collector"
+
 func NewAllCollector(u metrics.AggregationUpdater) prometheus.Collector {
 
 	cs := make(map[string]metrics.LotusCollector)
@@ -29,22 +31,22 @@ func NewAllCollector(u metrics.AggregationUpdater) prometheus.Collector {
 
 	a.scrapeAtDesc = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Namespace: metrics.NameSpace,
-			Name:      "collector_start_at",
+			Namespace: NameSpace,
+			Name:      "start_at",
 			Help:      "collector_start_at.",
 		}, []string{"collector"})
 
 	a.scrapeDurationDesc = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Namespace: metrics.NameSpace,
-			Name:      "collector_duration_seconds",
+			Namespace: NameSpace,
+			Name:      "duration_seconds",
 			Help:      "collector_duration_seconds.",
 		}, []string{"collector"})
 
 	a.scrapeLatestStatusDesc = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Namespace: metrics.NameSpace,
-			Name:      "collector_latest_status",
+			Namespace: NameSpace,
+			Name:      "latest_status",
 			Help:      "collector_latest_status.",
 		}, []string{"collector"})
 

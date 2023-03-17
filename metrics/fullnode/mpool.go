@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/filecoin-project/go-state-types/abi"
 	"github.com/filecoin-project/go-state-types/builtin"
-	"github.com/filecoin-project/lotus/chain/actors"
 	"github.com/filecoin-project/lotus/chain/types"
 	"github.com/ipfs/go-cid"
 	"github.com/prometheus/client_golang/prometheus"
@@ -119,51 +118,6 @@ func (f *MPool) Update(ch chan<- prometheus.Metric) {
 	f.AttentionMessage.Collect(ch)
 }
 
-func GetMessageMethodStringFromActorBase(actorTo *ActorBase, methodNum abi.MethodNum) (string, error) {
-	const undefinedMethod = "undefined"
-
-	switch methodNum {
-	case builtin.MethodSend:
-		return "Send", nil
-	case builtin.MethodConstructor:
-		return "Constructor", nil
-	case builtin.UniversalReceiverHookMethodNum:
-		return "UniversalReceiverHook", nil
-	}
-
-	var methodStruct interface{}
-	var undefinedMethodError = errors.New(fmt.Sprintf("unsupport key %v", actorTo.ActorType))
-	switch actorTo.ActorType {
-	case actors.SystemKey:
-		return undefinedMethod, undefinedMethodError
-	case actors.AccountKey:
-		methodStruct = builtin.MethodsAccount
-	case actors.InitKey:
-		methodStruct = builtin.MethodsInit
-	case actors.CronKey:
-		methodStruct = builtin.MethodsCron
-	case actors.RewardKey:
-		methodStruct = builtin.MethodsReward
-	case actors.MultisigKey:
-		methodStruct = builtin.MethodsMultisig
-	case actors.PaychKey:
-		methodStruct = builtin.MethodsPaych
-	case actors.MarketKey:
-		methodStruct = builtin.MethodsMarket
-	case actors.PowerKey:
-		methodStruct = builtin.MethodsPower
-	case actors.MinerKey:
-		methodStruct = builtin.MethodsMiner
-	case actors.VerifregKey:
-		methodStruct = builtin.MethodsVerifiedRegistry
-	case actors.DatacapKey:
-		methodStruct = builtin.MethodsDatacap
-	default:
-		return undefinedMethod, undefinedMethodError
-	}
-	return Uint64ValueFieldName(uint64(methodNum), methodStruct)
-}
-
 func GetMessageMethodStringByNum(actorCodeCIDs map[string]cid.Cid, actorCode cid.Cid, methodNum abi.MethodNum) (string, error) {
 	const undefinedMethod = "undefined"
 
@@ -172,8 +126,6 @@ func GetMessageMethodStringByNum(actorCodeCIDs map[string]cid.Cid, actorCode cid
 		return "Send", nil
 	case builtin.MethodConstructor:
 		return "Constructor", nil
-	case builtin.UniversalReceiverHookMethodNum:
-		return "UniversalReceiverHook", nil
 	}
 
 	var methodStruct interface{}
@@ -182,29 +134,29 @@ func GetMessageMethodStringByNum(actorCodeCIDs map[string]cid.Cid, actorCode cid
 	for k, c := range actorCodeCIDs {
 		if actorCode == c {
 			switch k {
-			case actors.SystemKey:
+			case SystemKey:
 				return undefinedMethod, undefinedMethodError
-			case actors.AccountKey:
+			case AccountKey:
 				methodStruct = builtin.MethodsAccount
-			case actors.InitKey:
+			case InitKey:
 				methodStruct = builtin.MethodsInit
-			case actors.CronKey:
+			case CronKey:
 				methodStruct = builtin.MethodsCron
-			case actors.RewardKey:
+			case RewardKey:
 				methodStruct = builtin.MethodsReward
-			case actors.MultisigKey:
+			case MultisigKey:
 				methodStruct = builtin.MethodsMultisig
-			case actors.PaychKey:
+			case PaychKey:
 				methodStruct = builtin.MethodsPaych
-			case actors.MarketKey:
+			case MarketKey:
 				methodStruct = builtin.MethodsMarket
-			case actors.PowerKey:
+			case PowerKey:
 				methodStruct = builtin.MethodsPower
-			case actors.MinerKey:
+			case MinerKey:
 				methodStruct = builtin.MethodsMiner
-			case actors.VerifregKey:
+			case VerifregKey:
 				methodStruct = builtin.MethodsVerifiedRegistry
-			case actors.DatacapKey:
+			case DatacapKey:
 				methodStruct = builtin.MethodsDatacap
 			}
 			return Uint64ValueFieldName(uint64(methodNum), methodStruct)

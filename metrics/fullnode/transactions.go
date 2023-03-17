@@ -2,7 +2,6 @@ package fullnode
 
 import (
 	"errors"
-	"github.com/filecoin-project/lotus/chain/actors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/xsw1058/lotus-exporter/metrics"
 	"github.com/xsw1058/lotus-exporter/metrics/filfox"
@@ -79,7 +78,7 @@ func (l *FullNode) TransactionsSummary() (metrics.LotusCollector, error) {
 	earliestStartAt := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, time.Local).AddDate(0, -1, 0)
 	// 用于从filFox获取需要的最新的交易信息, 并放入到 pendingTransfers 中.
 	for _, actor := range l.chain.attentionActor {
-		if actor.ActorType == actors.MinerKey {
+		if actor.ActorType == MinerKey {
 			continue
 		}
 		if strings.Contains(actor.Tag, "control") {

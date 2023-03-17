@@ -289,7 +289,7 @@ start:
 		}
 		result, count, err := f.getTransferOnce(address, 20, num)
 		if err != nil {
-			log.Warnw("request failed", "err", err)
+			log.Debugw("request failed", "err", err)
 			time.Sleep(time.Second * 3)
 			try++
 			continue

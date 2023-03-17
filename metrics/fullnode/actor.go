@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/lotus/blockstore"
-	"github.com/filecoin-project/lotus/chain/actors"
 	"github.com/filecoin-project/lotus/chain/actors/adt"
 	"github.com/filecoin-project/lotus/chain/actors/builtin/miner"
 	"github.com/filecoin-project/lotus/chain/types"
@@ -14,6 +13,21 @@ import (
 	"github.com/xsw1058/lotus-exporter/metrics"
 	"strconv"
 	"sync"
+)
+
+const (
+	AccountKey  = "account"
+	CronKey     = "cron"
+	InitKey     = "init"
+	MarketKey   = "storagemarket"
+	MinerKey    = "storageminer"
+	MultisigKey = "multisig"
+	PaychKey    = "paymentchannel"
+	PowerKey    = "storagepower"
+	RewardKey   = "reward"
+	SystemKey   = "system"
+	VerifregKey = "verifiedregistry"
+	DatacapKey  = "datacap"
 )
 
 type ActorMetrics struct {
@@ -64,10 +78,6 @@ func (l *FullNode) getActors(addr address.Address, tag string) ([]ActorBase, err
 	}
 
 	var abs []ActorBase
-	//var ab = ActorBase{
-	//	Tag:     tag,
-	//	ActorID: addrID,
-	//}
 	var ab = ActorBase{
 		Tag:       tag,
 		ActorID:   addrID,
@@ -75,7 +85,7 @@ func (l *FullNode) getActors(addr address.Address, tag string) ([]ActorBase, err
 		key:       address.Address{},
 		MinerID:   addrID,
 	}
-
+	log.Debugw("getting actor type", "addr", addr.String(), "tag", tag, "actor Code", actor.Code)
 	for k, c := range l.chain.ciDs {
 		if actor.Code == c {
 			ab.ActorType = k
@@ -83,12 +93,8 @@ func (l *FullNode) getActors(addr address.Address, tag string) ([]ActorBase, err
 	}
 
 	switch ab.ActorType {
-	case actors.MinerKey:
-		robustAddress, err := l.api.StateLookupRobustAddress(l.ctx, addrID, l.chain.chainHead.Key())
-		if err != nil {
-			return nil, err
-		}
-		ab.key = robustAddress
+	case MinerKey:
+		ab.key = addr
 
 		mi, err := l.api.StateMinerInfo(l.ctx, addrID, l.chain.chainHead.Key())
 		if err != nil {
@@ -106,7 +112,7 @@ func (l *FullNode) getActors(addr address.Address, tag string) ([]ActorBase, err
 		for a, t := range as {
 			actorBases, err := l.getActors(a, t)
 			if err != nil {
-				log.Warnln(err)
+				log.Warnw("get actor", "addr", a.String(), "tag", t, "error", err)
 				continue
 			}
 
@@ -118,18 +124,14 @@ func (l *FullNode) getActors(addr address.Address, tag string) ([]ActorBase, err
 
 		}
 
-	case actors.AccountKey:
+	case AccountKey:
 		accountKey, err := l.api.StateAccountKey(l.ctx, addrID, l.chain.chainHead.Key())
 		if err != nil {
 			return nil, err
 		}
 		ab.key = accountKey
-	case actors.MultisigKey:
-		robustAddress, err := l.api.StateLookupRobustAddress(l.ctx, addrID, l.chain.chainHead.Key())
-		if err != nil {
-			return nil, err
-		}
-		ab.key = robustAddress
+	case MultisigKey:
+		ab.key = addr
 	default:
 		return nil, errors.New(fmt.Sprintf("%v type %v is unsupport", addr, ab.ActorType))
 	}
@@ -184,10 +186,9 @@ func (l *FullNode) RegisterAttentionActor(actors []ActorBase) {
 func (l *FullNode) getAllAttentionActor() []ActorBase {
 	var abs []ActorBase
 	for addr, tag := range l.conf.Miners {
-		log.Debugw("get actor", "address", addr.String(), "tag", tag)
 		actorBases, err := l.getActors(addr, tag)
 		if err != nil {
-			log.Errorln(err)
+			log.Errorw("get actor error", "addr", addr, "tag", tag, "error", err.Error())
 			continue
 		}
 		abs = append(abs, actorBases...)
@@ -206,14 +207,14 @@ func (l *FullNode) GetActorMetric() ([]ActorMetrics, error) {
 		go func(id address.Address, attention ActorBase) {
 			defer wg.Done()
 			switch attention.ActorType {
-			case actors.MinerKey:
+			case MinerKey:
 				a, err := l.getMinerMetrics(attention)
 				if err != nil {
 					log.Warnln(err)
 					return
 				}
 				res = append(res, *a)
-			case actors.AccountKey, actors.MultisigKey:
+			case AccountKey, MultisigKey:
 				act, err := l.api.StateGetActor(l.ctx, id, l.chain.chainHead.Key())
 				if err != nil {
 					log.Warnln(err)
@@ -336,6 +337,11 @@ type Actors struct {
 }
 
 func (s *Actors) Update(ch chan<- prometheus.Metric) {
+	defer func() {
+		if e := recover(); e != nil {
+			log.Errorf("panic:%v\n", e)
+		}
+	}()
 	s.MinerRawBytePower.Reset()
 	s.MinerQualityAdjPower.Reset()
 	s.MinerSectorSize.Reset()
@@ -344,7 +350,7 @@ func (s *Actors) Update(ch chan<- prometheus.Metric) {
 
 	for _, a := range s.native {
 		s.ActorBalance.WithLabelValues(a.Actor.ActorID.String(), a.Actor.key.String(), a.Actor.Tag, a.Actor.ActorType, a.Actor.MinerID.String()).Set(a.Balance)
-		if a.Actor.ActorType == actors.MinerKey {
+		if a.Actor.ActorType == MinerKey {
 			var hasPowerTag = "yes"
 			if !a.Miner.HasMinPower {
 				hasPowerTag = "no"

@@ -3,7 +3,6 @@ package fullnode
 import (
 	"errors"
 	"github.com/filecoin-project/go-address"
-	"github.com/filecoin-project/lotus/chain/actors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/xsw1058/lotus-exporter/metrics"
 	"strconv"
@@ -155,7 +154,7 @@ func (l *FullNode) UpdateDeadlines() ([]*DeadlinesMetrics, error) {
 	var data []*DeadlinesMetrics
 	var miners = make(map[address.Address]string)
 	for _, m := range l.chain.attentionActor {
-		if m.ActorType == actors.MinerKey {
+		if m.ActorType == MinerKey {
 			miners[m.ActorID] = m.Tag
 		}
 	}

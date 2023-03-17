@@ -6,7 +6,6 @@ import (
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/go-state-types/abi"
 	"github.com/filecoin-project/go-state-types/builtin/v9/miner"
-	"github.com/filecoin-project/lotus/chain/actors"
 	"github.com/prometheus/client_golang/prometheus"
 	"sync"
 )
@@ -169,7 +168,7 @@ func (l *FullNode) sectorInfo() (MinerSector, error) {
 	var miners = make(map[address.Address]ActorBase)
 	var currEpoch = l.chain.chainHead.Height()
 	for addr, m := range l.chain.attentionActor {
-		if m.ActorType == actors.MinerKey {
+		if m.ActorType == MinerKey {
 			miners[addr] = m
 		}
 	}

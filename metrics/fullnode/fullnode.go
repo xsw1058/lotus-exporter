@@ -164,7 +164,7 @@ func (l *FullNode) init() {
 	if err != nil {
 		log.Errorln(err)
 	}
-
+	log.Debugw("StateActorCodeCIDs result", "network", networkVersion, "cids", ciDs)
 	walletList, err := l.api.WalletList(l.ctx)
 	if err != nil {
 		log.Errorln(err)

@@ -29,7 +29,16 @@ func main() {
 		Handler: http.DefaultServeMux,
 	}
 	http.Handle("/metrics", newHandler(hub))
-	http.Handle("/test", promhttp.Handler())
+	http.Handle("/go", promhttp.Handler())
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte(`<html>
+			<head><title>Lotus Exporter</title></head>
+			<body>
+			<h1>Lotus Exporter By XUSW </h1>
+			<p><a href="/metrics">Metrics</a></p>
+			</body>
+			</html>`))
+	})
 	log.Println("init done. start http server.....")
 	server.ListenAndServe()
 }
@@ -51,6 +60,7 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *handler) innerHandler() (http.Handler, error) {
+
 	c := collector.NewAllCollector(h.updater)
 	promhttp.Handler()
 	r := prometheus.NewRegistry()
@@ -60,10 +70,10 @@ func (h *handler) innerHandler() (http.Handler, error) {
 		return nil, err
 	}
 	r.MustRegister(
-		// prometheus 自带的一些监控.
-		//collectors.NewBuildInfoCollector(),
-		//collectors.NewProcessCollector(collectors.ProcessCollectorOpts{}),
-		//collectors.NewGoCollector(),
+	// prometheus 自带的一些监控.
+	//collectors.NewBuildInfoCollector(),
+	//collectors.NewProcessCollector(collectors.ProcessCollectorOpts{}),
+	//collectors.NewGoCollector(),
 	)
 	hh := promhttp.HandlerFor(
 		prometheus.Gatherers{r},
